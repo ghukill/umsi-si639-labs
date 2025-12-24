@@ -25,3 +25,7 @@ uv venv .venv --python 3.12
 ```shell
 uv sync
 ```
+
+## Labs
+
+Labs can be found at [/labs](labs).
