@@ -1,0 +1,13 @@
+[project]
+name = "umsi-si639-labs"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "ipython>=9.8.0",
+    "nabit>=0.1.2",
+    "pywb>=2.9.1",
+    "warcprox>=2.11.0",
+]
+
+[tool.uv.sources]
+nabit = { url = "https://github.com/harvard-lil/bag-nabit/archive/refs/heads/main.zip" }
