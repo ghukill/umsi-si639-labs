@@ -209,3 +209,5 @@ __marimo__/
 # Data / Scratch
 scratch/
 !scratch/.gitkeep
+
+AGENTS.md
