@@ -11,6 +11,8 @@ In this lab, we will walk through and analyze a couple of the simplest forms of 
 
 **1-** In your browser of choice, navigate to a website of your choosing.
 
+Option from the "Minternet": [https://minternet-science.exe.xyz/](https://minternet-science.exe.xyz/)
+
 ### Part One: File > "Save As"
 
 **1-** Select the "File" menu, then "Save As"
