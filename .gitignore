@@ -211,3 +211,5 @@ scratch/
 !scratch/.gitkeep
 
 AGENTS.md
+
+**/.DS_Store
