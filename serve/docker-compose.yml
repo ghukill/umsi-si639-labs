@@ -2,25 +2,29 @@ services:
   jekyll:
     image: jekyll/builder:latest
     working_dir: /srv/jekyll
+    user: root
     environment:
-      - BUNDLE_GEMFILE=/srv/jekyll/serve/Gemfile
+      - BUNDLE_GEMFILE=/srv/jekyll/Gemfile
       - JEKYLL_ENV=production
+      - SASS_CACHE_DIR=/srv/jekyll/.sass-cache
     volumes:
-      - ..:/srv/jekyll
-      - jekyll_bundle:/usr/local/bundle
-      - jekyll_site:/srv/jekyll/_site
-      - jekyll_sass_cache:/srv/jekyll/.sass-cache
-      - jekyll_jekyll_cache:/srv/jekyll/.jekyll-cache
+      - ./Gemfile:/srv/jekyll/Gemfile:ro
+      - ./Gemfile.lock:/srv/jekyll/Gemfile.lock:ro
+      - ./_config.yml:/srv/jekyll/_config.yml:ro
+      - ../README.md:/srv/jekyll/README.md:ro
+      - ../labs:/srv/jekyll/labs:ro
+    tmpfs:
+      - /srv/jekyll/_site
+      - /srv/jekyll/.sass-cache
+      - /srv/jekyll/.jekyll-cache
     ports:
       - "4000:4000"
       - "35729:35729"
     command: >-
-      bash -lc "bundle install &&
+      bash -lc "chown -R jekyll:jekyll /srv/jekyll/_site /srv/jekyll/.sass-cache /srv/jekyll/.jekyll-cache &&
+      bundle install &&
       bundle exec jekyll serve --host=0.0.0.0 --watch --livereload
-      --config /srv/jekyll/serve/_config.yml"
+      --source /srv/jekyll --destination /srv/jekyll/_site
+      --config /srv/jekyll/_config.yml"
 
-volumes:
-  jekyll_bundle:
-  jekyll_site:
-  jekyll_sass_cache:
-  jekyll_jekyll_cache:
+volumes: {}
