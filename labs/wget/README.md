@@ -40,7 +40,7 @@ It looks as though the WARC file is [gzip-ed](https://www.gzip.org/).  Let's dec
 gzip -dk minternet.warc.gz
 ```
 
-Now, we can look at the WARC file directly with `less` (text viewer):
+Now, we can look at the WARC file directly with the text viewer `less` (if you don't have `less` installed, you can open the WARC file with any text editor you may have):
 ```shell
 less minternet.warc
 ```
@@ -370,9 +370,74 @@ When we click on "Alice", the first couple blogs posts render just fine.  But cl
 
 ![](blog-post-not-found.png)
 
-The first two blog posts were linked to from the root page making the "level one" deep.  But the third post was not linked to from the root page, making it "level two" deep.  `wget` faithfull respected the `-l 1` flag and skipped this. 
+The first two blog posts were linked to from the root page making the "level one" deep.  But the third post was not linked to from the root page, making it "level two" deep.  `wget` faithfully respected the `-l 1` flag and skipped this. 
+
+### Exclude / Include Scoping
+
+Let's try the blogs crawl again.  We will revert back to inifinte depth, but we'll add some exclusion rules to avoid the crawler traps we've encountered (precisely what the crawler traps were, and the URLs patterns themselves, is a little out of scope here, but an important skill in web archiving).
+
+```shell
+wget "https://minternet-blogs.exe.xyz/" \
+--warc-file="minternet-blogs" \
+-N \
+-r \
+-l inf \
+--reject-regex="(.*minternet-blogs.exe.xyz/calendar.*)|(.*minternet-blogs.exe.xyz/search.*)|(.*minternet-blogs.exe.xyz/archive.*)"
+```
+
+The crawl should complete after retrieving around 12 URLs.  Let's reload the WARC file in ReplayWeb:
+
+1. Navigate back to [https://replayweb.page/](https://replayweb.page/)
+2. Find the WARC file `minternet-blogs.warc.gz` in the list, then click the "X" at the far right
+3. Go through the steps of reloading the same WARC file
+
+Now, if we navigate to the "Alice" link, the last blog post should load correctly.
+
+Let's try and crawl the full Minternet with our new exclusions trick.  To do so, we'll need to add an additional flag `--span-hosts` to let `wget` know it's okay to capture domains different from our "root" URL domain `minternet.exe.xyz`, e.g. `minternet-blogs.exe.xyz`, `minternet-science.exe.xyz`, etc:
+
+```shell
+wget "https://minternet.exe.xyz/" \
+--warc-file="minternet-full" \
+-N \
+-r \
+-l inf \
+--span-hosts \
+--reject-regex="(.*minternet-blogs.exe.xyz/calendar.*)|(.*minternet-blogs.exe.xyz/search.*)|(.*minternet-wowser.exe.xyz/random.*)|(.*minternet-wowser.exe.xyz/archive.*)"
+```
+
+Success!  Loading this new WARC file into ReplayWeb should reveal how all sites and domains are captured, and our exclusion rules have avoided some crawler traps.
+
+### QA
+
+We've established that we captured quite a bit of content, but what did we miss?  what is the quality or fidelity of what we captured?
+
+Let's look at one website specifically to understand what kind of crawling `wget` performs.
+
+First, we'll look at the live site: [https://minternet-science.exe.xyz/](https://minternet-science.exe.xyz/).  Note the "All Experiments" section:
+
+![science_all_experiments.png](science_all_experiments.png)
+
+Now look at the same URL in the ReplayWeb interface from our crawl (you can paste or type the URL in the ReplayWeb search bar).  Note that this section looks broken:
+
+![science_all_experiments.png](science_all_experiments_failed.png)
+
+Why did this happen?  This begins to get a little out of scope of this lab, but in short, this part of the website was generated via client-side javascript code.  We can see an XHR request here in the developer tools that is made by the browser after the source HTML is loaded from the server:
+
+![](dev_tools_async_api.png)
+
+This is revealing a defining characteristic of `wget` crawls: **a browser engine is not used to fully render client-side behavior of the final content that is captured.**
+
+This is not unique to `wget` crawls: many tools that capture website content are subject to this limitation as well.  In fact, tools that _don't_ have this limitation -- e.g. browsertrix-crawler, heretrix, etc. -- is what sets them apart.
 
 
 ### Reflection Prompts
 
-Coming soon...
+**1-** Have you used `wget` for other purposes? 
+
+**2-** What web archiving scenarios might `wget` be well suited for?
+
+**3-** Does `wget` allow a user to include metadata about the web content capturing?
+
+**4-** When `wget` is run with the `--warc-file` flag, which creates the WARC file, it still generates content from the capture (e.g. HTML files, directories, etc.).  One might argue this is beccause writing WARC files was added later in `wget`'s evolution and was not part of the original design.  Do you think this impacts `wget's` legitamacy as a web archiving tool?
+
+**5-** Is "client-side" and/or "browser engine" rendering a new concept to you?  If so, that's okay!  We'll continue to touch on this.
