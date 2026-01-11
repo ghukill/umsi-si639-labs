@@ -1,0 +1,23 @@
+title: umsi-si639-labs
+theme: jekyll-theme-primer
+markdown: kramdown
+repository: ghukill/umsi-si639-labs
+url: ""
+baseurl: ""
+plugins:
+  - jekyll-readme-index
+  - jekyll-relative-links
+  - jekyll-optional-front-matter
+readme_index:
+  enabled: true
+  remove_originals: false
+relative_links:
+  enabled: true
+  collections: true
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+kramdown:
+  input: GFM
