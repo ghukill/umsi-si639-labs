@@ -2,7 +2,15 @@
 
 ## Overview
 
-Coming soon...
+This lab introduces the use of the terminal application [wget](https://www.gnu.org/software/wget/) for generating WARC files of single URLs and recursive web crawls.  This introduction is by no means exhaustive for `wget`'s web crawling capabilities, nor does it explore the use of `wget` _outside_ of producing WARC files (which it was originally designed for).
+
+`wget` has supported the outputting of WARC files from fetched URLs [since version 1.14](https://lists.gnu.org/archive/html/info-gnu/2012-08/msg00002.html).  The fanfare from the release notes 😂:
+
+> ** Add support for WARC files.
+
+While the creation of WARC files was not part of the original design, it easy to see how it evolved to support that functionality.  WARC files capture common network protocol (e.g. HTTP, FTP, etc.) requests + responses.  `wget` allows for making network requests and receiving the response.  It was a nice fitting!
+
+Near the end of the lab we touch briefly on how `wget` was expanded to have some "crawling" capabilities, namely following links within a retrieved HTML page and fetching them as well (aka "recursive" behavior).  But as we also see in the lab, without a browser engine to fully render the websites, the captured content is often less than ideal.  That said, sometimes `wget` + WARC output is a great fit for the task at hand.
 
 ## Instructions
 
