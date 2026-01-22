@@ -425,6 +425,27 @@ With the crawl complete, we can look at the public access interface.  Please not
 
 ![collection-private-link.png](collection-private-link.png)
 
+This will take you to the public interface, and we can see our seed prominently displayed, serving as an access entrypoint into this collection:
+
+![public-collection-seeds.png](public-collection-seeds.png)
+
+Clicking that seed link will navigate to a Wayback Machine interface scoped to only captures for this seed.  From this interface we can click on the crawl date of Jan 22nd, which reveals a pop-up with the time of our single capture:
+
+![wayback-machine-1.png](wayback-machine-1.png)
+
+Finally, clicking that capture time link will navigate to a Wayback Machine rendering of our capture!
+
+![wayback-capture-1.png](wayback-capture-1.png)
+
+From here, you can click around and interact with / view the rendered form of our web crawl.  Congratulations, you have:
+
+1. created a collection
+2. added some minimal metadata
+3. added seeds
+4. run test crawls
+5. QA'ed and scoped the seeds
+6. run a real crawl to capture content
+7. view the archived websites in the Wayback Machine
 
 
 ## Reflection Prompts
@@ -433,4 +454,6 @@ With the crawl complete, we can look at the public access interface.  Please not
 
 2- How does this "service" differ from the "tool" `wget` we looked at last week?
 
-3- 
+3- How does this interaction with a full-featured web archiving service change your outlook of web archiving?
+
+4- Do you think you'll use this tool for building your own web collection in this course?
