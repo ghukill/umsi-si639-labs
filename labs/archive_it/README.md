@@ -24,7 +24,6 @@ One of the very first things we'll want to do is make the collection **private**
 
 ![mark_private.png](mark_private.png)
 
-
 ### 2- Add single seed and run first crawl
 
 Next we'll add a single seed and run a test crawl to get a feel for the mechanics of that.
@@ -122,7 +121,6 @@ For some web archiving programs, this may close the loop and be sufficient for t
 6. Discovery and access available via the AIT public interface
 
 For other web archiving programs, we are only scratching the surface of what they may utilize.  AIT is a very full featured web archiving service, much of which we have not yet touched on yet.
-
 
 ### 5- Crawl Traps, QA, and Scoping; oh my!
 
@@ -244,7 +242,7 @@ With this new rule in place, let's re-run a test crawl with all the same setting
 
 ![test-crawl-2.png](test-crawl-2.png)
 
-For analysis purposes, this crawl will work equally well to the one you ran: https://partner.archive-it.org/421/collections/30935/crawl/2656566.
+For analysis purposes, this crawl will work equally well to the one you ran: [https://partner.archive-it.org/421/collections/30935/crawl/2656566](https://partner.archive-it.org/421/collections/30935/crawl/2656566).
 
 Note that now 95 docs; it would appear that our seed scope include rule had an effect!  What kind of URLs are we seeing from this crawl?  We can use the same QA approach as before and look at the plain text URLs that originated from this seed:
 
@@ -357,12 +355,14 @@ What else are we seeing here?  QA-ing crawls can be very methodical and scientif
 - URLs with `/calendar` in it, e.g. `https://minternet-blogs.exe.xyz/calendar?year=1990&month=1`
 - URLs with `/archive` in it, e.g. `https://minternet-blogs.exe.xyz/archive/2026/1`
 - URLs with `/search` in it, e.g. `https://minternet-blogs.exe.xyz/search?q=warc`
+- URLs with `/random` in it, e.g. `https://minternet-wowser.exe.xyz/random/nafjxobz`
 
 We will explore crawler trap patterns in more detail later, but suffice to say for now these _are_ crawler traps.  Note the following websites which explain why they are traps:
 
-- https://minternet-blogs.exe.xyz/calendar
-- https://minternet-blogs.exe.xyz/search
-- https://minternet-blogs.exe.xyz/archive/2026/1
+- [https://minternet-blogs.exe.xyz/calendar](https://minternet-blogs.exe.xyz/calendar)
+- [https://minternet-blogs.exe.xyz/search](https://minternet-blogs.exe.xyz/search)
+- [https://minternet-blogs.exe.xyz/archive/2026/1](https://minternet-blogs.exe.xyz/archive/2026/1)
+- [https://minternet-wowser.exe.xyz/random](https://minternet-wowser.exe.xyz/random)
 
 Our next step will be to write some **exclude** rules that will avoid these traps!
 
@@ -379,9 +379,10 @@ Now we'll create three exclusion rules:
 2. Select "it Matches the Regular Expression"
 3. Enter the value `.*minternet-blogs.exe.xyz/search.*`
 
-Repeat this process for the following two values:
+Repeat this process for the following three values:
 - `.*minternet-blogs.exe.xyz/calendar.*`
 - `.*minternet-blogs.exe.xyz/archive.*`
+- `.*minternet-wowser.exe.xyz/random.*`
 
 When you're done, it should look like the following:
 
@@ -389,7 +390,40 @@ When you're done, it should look like the following:
 
 Finally, let's run another test crawl and see the effect of this.  Follow the steps we've done before, but this time let's bump our document limit to 2000 and give us some breathing room for URLs and the various assets we may encounter.
 
-For analysis purposes, you may use this crawl which follows this pattern is now complete: https://partner.archive-it.org/421/collections/30935/crawl/2656573.
+For analysis purposes, you may use this crawl which follows this pattern is now complete: [https://partner.archive-it.org/421/collections/30935/crawl/2656574](https://partner.archive-it.org/421/collections/30935/crawl/2656574).
+
+Once the crawl is complete, it should finish with 77 documents:
+
+![test-crawl-3.png](test-crawl-3.png)
+
+🚨**NOTE!** 🚨
+
+While putting together this section, I originally missed the exclusion pattern `.*minternet-wowser.exe.xyz/random.*` which resulted in encountering another crawler trap.  This was discovered after running a test crawl and noticing repeating URLs with `/random` in the URL.  This was not obvious from our first test crawl.  Though a couple of URLs had `/random` in them, e.g. `https://minternet-wowser.exe.xyz/random/jehdtsin`, it was not enough for an ad-hoc spot check to catch.  This is both a nice example of a) how scale can effect crawling and QA, and b) how iterative the process is! 
+
+### 6- A real crawl and replay of content
+
+Now that we've honed our seed, let's perform a full, real crawl.  Once that crawl is complete, we'll be able to view the results in the public facing interface of our collection.
+
+1. Navigate to the collection
+2. Navigate to "Seeds"
+3. Select the seed we've been working on, `https://minternet.exe.xyz/`
+4. Click "Run Crawl" and set the following:
+
+- Crawl Type: `One-Time Crawl`
+- Doc. Limit: `1000`  (just to be safe)
+
+It should look like the following:
+
+![real-crawl-1.png](real-crawl-1.png)
+
+Either wait for this crawl to complete, or view the results of the crawl here: [https://partner.archive-it.org/421/collections/30935/crawl/2656578](https://partner.archive-it.org/421/collections/30935/crawl/2656578).
+
+With the crawl complete, we can look at the public access interface.  Please note that we've configured this collection as "Private", so this interface is only visible to logged in users for this AIT account.
+
+1. Navigate to collection
+2. Click the [public/private interface link](https://archive-it.org/collections/5a001858-378f4c6499d4b1458bbef891):
+
+![collection-private-link.png](collection-private-link.png)
 
 
 
