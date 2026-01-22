@@ -9,7 +9,7 @@ This lab will serve as introduction to the Archive-It (AIT) web archiving servic
 ### 1- Login and create a collection
 
 First, login to AIT:
-- URL: https://partner.archive-it.org/login
+- URL: [https://partner.archive-it.org/login](https://partner.archive-it.org/login)
 - username: your umich unique name, e.g. `gshukill`
 - password: available in spreadsheet shared in Canvas 
   - NOTE: you'll be required to change it the first time you login 
