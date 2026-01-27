@@ -248,7 +248,235 @@ And clicking on the first link of `https://minternet.exe.xyz/` we see our page r
 
 ![rwp-warc-link-1.png](rwp-warc-link-1.png)
 
-This was a pure HTML page, with zero complexity, but still confirms things are working as we hoped.
+This was a single, pure HTML page, with zero complexity, but still confirms things are working as we hoped.
+
+### Crawl with multiple seeds and domains
+
+For our next crawl, let's try building a [configuration YAML file](https://crawler.docs.browsertrix.com/user-guide/yaml-config/) that we can pass to the crawler to use.  Browsertrix-Crawler is very convenient how it handles configurations, allowing the same arguments to be set in the configuration YAML or as command line arguments.  From the documentation,
+
+> The YAML file can contain the same parameters as the command-line arguments. If a parameter is set on the command-line and in the YAML file, the value from the command-line will be used.
+
+Create a file called `minternet-full.yaml` in your current directory and paste the following contents:
+
+```yaml
+verbose: true
+collection: minternet-full-1
+workers: 4
+generateWACZ: true
+limit: 500
+
+seeds:
+  - url: https://minternet.exe.xyz/
+    scopeType: "domain"
+  - url: https://minternet-blogs.exe.xyz/
+    scopeType: "domain"
+    exclude:
+      - ".*minternet-blogs.exe.xyz/search.*"
+      - ".*minternet-blogs.exe.xyz/calendar.*"
+      - ".*minternet-blogs.exe.xyz/archive.*"
+  - url: https://minternet-recipes.exe.xyz/
+    scopeType: "domain"
+  - url: https://minternet-science.exe.xyz/
+    scopeType: "domain"
+  - url: https://minternet-wowser.exe.xyz/
+    scopeType: "domain"
+    exclude:
+      - ".*minternet-wowser.exe.xyz/random.*"
+```
+
+NOTE: if you have never worked with YAML files, they can be a little unforgiving!  Space and indents matter, kind of like python.  Thankfully -- errors are our friends! -- the crawl will not proceed if the YAML file is not formatted correctly.
+
+Some of these fields may look familiar from our first single crawl, e.g. `collection`, `verbose`, `generateWACZ`, etc.  But as you can see in the `seeds` section, the YAML allow for more detail and complexity.  Here we are passing 5 seeds, each with their own configurations.  Recall from the [Archive-It Lab](../archive_it/README.md) where we set `include` and `exclude` scoping rules for a seed.  We can do essentially the same here!  Read more about seed scoping here, this YAML file only has some basic `include` / `exclude` rules applied.
+
+It's worth noting that we could apply these scoping rules at the collection level (the full crawl) or per seed as we have done here.  This can feel a little daunting at first, but allows for very fine grained control over the crawl.
+
+We have focused mostly on seeds, but `include` rules can be powerful too!  You may know that a particular seed will attempt to retrieve files from other domains, but you're not comfortable setting `scopeType: any` which would allow for capturing material _anywhere_.  With `include` rules, you could explicitly allow the crawl to capture URLs from specific domains or matching specific patterns.
+
+With that file in place, we'll run a crawl and utilize the YAML file for most of our configurations.  The following is the command you'll run, but before running it let's breakdown how it works.
+
+```shell
+docker run -it \
+-v $(PWD):/crawls \
+webrecorder/browsertrix-crawler:latest \
+crawl \
+--config /crawls/minternet-full.yaml
+```
+
+Once the crawl completes, you should see some logging lines near the end that look similar:
+
+```text
+{"timestamp":"2026-01-27T00:45:01.160Z","logLevel":"info","context":"crawlStatus","message":"Crawl statistics","details":{"crawled":29,"total":29,"pending":0,"failed":0,"limit":{"max":500,"hit":false},"pendingPages":[]}}
+{"timestamp":"2026-01-27T00:45:01.161Z","logLevel":"info","context":"general","message":"Crawling done","details":{}}
+{"timestamp":"2026-01-27T00:45:01.161Z","logLevel":"info","context":"general","message":"Merging CDX","details":{}}
+{"timestamp":"2026-01-27T00:45:01.166Z","logLevel":"info","context":"general","message":"Generating WACZ","details":{}}
+{"timestamp":"2026-01-27T00:45:01.166Z","logLevel":"info","context":"general","message":"Num WARC Files: 4","details":{}}
+{"timestamp":"2026-01-27T00:45:01.177Z","logLevel":"info","context":"general","message":"Exiting, Crawl status: done","details":{}}
+```
+
+This tells us that we have crawled around 29 URLs, and we have generated a WACZ file.  The WACZ file -- which if you recall is an archive file that contains all parts of the crawl in one file -- can be found at `collections/minternet-full-1/minternet-full-1.wacz` relative to your working directory.
+
+Now, let's load this into [ReplayWeb.page](https://replayweb.page/) and see how things look!  This time, we'll load the WACZ file instead of any of the individual WARC files.  If you look in the directory `collections/minternet-full-1/archive` you'll see there are 4 WARC files.  This relates to how many `workers` we set in our config YAML file.  Each worker was crawling content and writing to its own WARC file.  This is perfectly normal and even desirable, but also reveals how handy the WACZ file is; an entire web crawl in a single file.
+
+Once loaded into ReplayWeb.page, it should look similar to the following:
+
+![rwp-full-1-wacz.png](rwp-full-1-wacz.png)
+
+Note that we ran our crawl with 5 seeds, and there are 5 entrypoints into our crawl.  This is not a hard and fast rule, and can vary crawler-to-crawler, or depending on loading WARC or WACZ files, but it's a decent mental model to think of seeds also as entrypoints for access and discovery in a web archive.
+
+Clicking on "The Minternet" link with the URL `https://minternet.exe.xyz/` will bring up our familiar Minternet root page.  Where it gets fun, but now we can follow links from _within_ the archived version.
+
+Try navigating the `Science Lab - minternet-science.exe.xyz` eithe from the main ReplayWeb.page root screen with the 5 links or from the Minternet root page itself:
+
+![science-1.png](science-1.png)
+
+or...
+
+![science-2.png](science-2.png)
+
+It looks pretty good at a glance... but what if you try clicking "View Details -->" from the "Baking Soda Volcano" card.  You'll should see an error like the following:
+
+![volcano-details-error.png](volcano-details-error.png)
+
+What's going on here?  If you were to open the Chrome developer tools, click the "Network" tab, and then click the "View Details -->" link, you'll see the following:
+
+![volcano-details-error-dev-tools.png](volcano-details-error-dev-tools.png)
+
+This is telling us that on the website itself, when that button is clicked, it attempts an additional network request -- sometimes called an AJAX request or async request; goes by many names -- to retrieve the details for that experiment to then render.  The specific URL it attempted to capture was `https://minternet-science.exe.xyz/api/experiment/1` which can determined from the dev tools as well.  If this feels overwhelming, don't worry, we'll devote an entire lab to learning how developer tools can help us QA crawls!
+
+We're getting into a very real, and very finicky part of web archiving.  We might think of this as "behavior" or "actions" on the page that the crawler didn't know to do, and thus did not capture.  If we had somehow captured that URL, during our replay of the site this likely would have worked.  This is worth pausing on for a moment, maybe have a sip of tea or coffee, and really let it sink in.  
+
+When we crawl and capture content, we often aren't capturing the "final product" per se, but instead we want to make sure that we retrieve each and very network request from the rendered page that our actions may have triggered.  That way, when we're _replaying_ the site, our archive contains all those network requests and we can experience the site as it was originally intended with the browser still doing some work for us.  This is subtle, but important!  This insight will come in handy quite often when thinking about crawling content and QA-ing replay-ability.  This is why we call it "replay", because we truly are recreating all the browser behavior again.  Our archive just contains the raw bits and bobs to serve up when needed.
+
+Okay okay, that was a long philosophical interlude 😅.  How do we fix this?  How can we capture those AJAX / asynchronous requests in our crawl capture, such that we can replay the page later?  We'll cover this in the next section.
+
+One more thing before we jump into that issue.  Let's look at two pages files that the Browsertrix Crawler creates:
+
+First, `collections/minternet-full-1/pages/pages.jsonl`:
+
+```json
+{"format":"json-pages-1.0","id":"pages","title":"Seed Pages","hasText":"false"}
+{"id":"ab44752d-d367-42b3-8fa3-adacee304466","url":"https://minternet-recipes.exe.xyz/","title":"Classic Recipes - recipes.test","loadState":4,"ts":"2026-01-27T00:44:36.196Z","mime":"text/html","status":200,"seed":true,"depth":0}
+{"id":"b06f5bee-1dd6-4487-9d3b-95e16e5e8eb6","url":"https://minternet-science.exe.xyz/","title":"Science Lab - minternet-science.exe.xyz","loadState":4,"ts":"2026-01-27T00:44:36.196Z","mime":"text/html","status":200,"seed":true,"depth":0}
+{"id":"f398ee08-adb9-4e2c-b7b0-29028bdc08a1","url":"https://minternet-blogs.exe.xyz/","title":"Home - minternet-blogs.exe.xyz","loadState":4,"ts":"2026-01-27T00:44:36.196Z","mime":"text/html","status":200,"seed":true,"depth":0}
+{"id":"a544a936-a7ad-4ccb-87f9-3ff830dd84d7","url":"https://minternet.exe.xyz/","title":"The Minternet","loadState":4,"ts":"2026-01-27T00:44:36.234Z","mime":"text/html","status":200,"seed":true,"depth":0}
+{"id":"7ff5fd87-cf94-4540-908c-4645a2cf6cef","url":"https://minternet-wowser.exe.xyz/","title":"Wowser - Museum of Strange Websites","loadState":4,"ts":"2026-01-27T00:44:40.087Z","mime":"text/html","status":200,"seed":true,"depth":0}
+```
+
+These are our five seeds, with some metadata about each.
+
+Second, `collections/minternet-full-1/pages/extraPages.jsonl`:
+
+```json
+{"format":"json-pages-1.0","id":"pages","title":"Non-Seed Pages","hasText":"false"}
+{"id":"0849fe8b-419c-4dd1-b615-984f4dacf712","url":"https://minternet-science.exe.xyz/static/data/experiments.csv","title":"","loadState":2,"ts":"2026-01-27T00:44:40.327Z","mime":"text/csv","status":200,"depth":1}
+{"id":"551cacda-e11a-4e00-ad51-b42206b47281","url":"https://minternet-science.exe.xyz/static/data/observations.csv","title":"","loadState":2,"ts":"2026-01-27T00:44:40.618Z","mime":"text/csv","status":200,"depth":1}
+{"id":"1eb8ff02-4521-4b7e-8bce-55d355a10471","url":"https://minternet-science.exe.xyz/static/documents/safety-guide.pdf","title":"","loadState":2,"ts":"2026-01-27T00:44:40.850Z","mime":"application/pdf","status":200,"depth":1}
+{"id":"bad8387d-2387-4ba3-a7c1-e25944f67cf1","url":"https://minternet-recipes.exe.xyz/recipes/pancakes.html","title":"Fluffy Pancakes - Classic Recipes","loadState":4,"ts":"2026-01-27T00:44:40.108Z","mime":"text/html","status":200,"depth":1}
+{"id":"ca1675a8-4180-49ff-ac7b-bf53785610c1","url":"https://minternet-recipes.exe.xyz/recipes/soup.html","title":"Hearty Vegetable Soup - Classic Recipes","loadState":4,"ts":"2026-01-27T00:44:40.326Z","mime":"text/html","status":200,"depth":1}
+{"id":"76a3ae6f-a3a3-4a37-8022-8df658957eef","url":"https://minternet-blogs.exe.xyz/author/alice","title":"Alice Chen - minternet-blogs.exe.xyz","loadState":4,"ts":"2026-01-27T00:44:41.267Z","mime":"text/html","status":200,"depth":1}
+{"id":"2746b991-3699-43b3-ac15-7a02dc53cf91","url":"https://minternet-blogs.exe.xyz/author/charlie","title":"Charlie Kim - minternet-blogs.exe.xyz","loadState":4,"ts":"2026-01-27T00:44:43.695Z","mime":"text/html","status":200,"depth":1}
+{"id":"d9b4865b-7b42-4a22-8e3b-f882016d9be7","url":"https://minternet-blogs.exe.xyz/author/bob","title":"Bob Martinez - minternet-blogs.exe.xyz","loadState":4,"ts":"2026-01-27T00:44:43.695Z","mime":"text/html","status":200,"depth":1}
+{"id":"a7e2a3f9-1867-457e-8638-2b200892993b","url":"https://minternet-blogs.exe.xyz/post/cross-domain-archiving-challenges","title":"Cross-Domain Linking in Web Archives - minternet-blogs.exe.xyz","loadState":4,"ts":"2026-01-27T00:44:43.876Z","mime":"text/html","status":200,"depth":1}
+{"id":"a7c16093-97fb-4e5a-8b50-4f9f11ba0198","url":"https://minternet-blogs.exe.xyz/post/getting-started-with-web-archiving","title":"Getting Started with Web Archiving - minternet-blogs.exe.xyz","loadState":4,"ts":"2026-01-27T00:44:44.700Z","mime":"text/html","status":200,"depth":1}
+{"id":"4d3d59be-622e-434c-81f3-b1ee464a9f83","url":"https://minternet-blogs.exe.xyz/post/science-resources-for-archivists","title":"Science Resources for Web Archivists - minternet-blogs.exe.xyz","loadState":4,"ts":"2026-01-27T00:44:47.176Z","mime":"text/html","status":200,"depth":1}
+{"id":"64cf29a6-aa92-4ba0-be3a-4f81f278330a","url":"https://minternet-wowser.exe.xyz/app/home","title":"SPA Demo - Wowser","loadState":4,"ts":"2026-01-27T00:44:47.193Z","mime":"text/html","status":200,"depth":1}
+{"id":"f82a3be6-7ba9-4463-af1f-9c0b588e06d9","url":"https://minternet-wowser.exe.xyz/base-demo","title":"Base Tag Abuse - Wowser","loadState":4,"ts":"2026-01-27T00:44:47.339Z","mime":"text/html","status":200,"depth":1}
+{"id":"31c00b04-d71c-4294-b234-067dcf97754b","url":"https://minternet-wowser.exe.xyz/csp-demo","title":"CSP Issues - Wowser","loadState":4,"ts":"2026-01-27T00:44:48.200Z","mime":"text/html","status":200,"depth":1}
+{"id":"0eec5ccc-9b4d-4541-9bb9-f43e2fd149c9","url":"https://minternet-wowser.exe.xyz/inline-assets","title":"Inline Base64 Assets - Wowser","loadState":4,"ts":"2026-01-27T00:44:50.644Z","mime":"text/html","status":200,"depth":1}
+{"id":"34565f59-3c21-4c3f-92b7-d1fa5afae1b3","url":"https://minternet-wowser.exe.xyz/refresh-loop","title":"Meta Refresh Loop - Wowser","loadState":4,"ts":"2026-01-27T00:44:50.730Z","mime":"text/html","status":200,"depth":1}
+{"id":"5901b5fb-cf19-4179-9365-3d1183e7732e","url":"https://minternet-wowser.exe.xyz/large-script","title":"Large Inline Script - Wowser","loadState":4,"ts":"2026-01-27T00:44:50.626Z","mime":"text/html","status":200,"depth":1}
+{"id":"c1b55c5b-9f71-4811-a018-459fd9101944","url":"https://minternet-wowser.exe.xyz/shadow-dom","title":"Shadow DOM - Wowser","loadState":4,"ts":"2026-01-27T00:44:51.653Z","mime":"text/html","status":200,"depth":1}
+{"id":"a5f1c983-b42e-4205-aa8d-c1e99ff4d082","url":"https://minternet-wowser.exe.xyz/websocket-demo","title":"WebSocket Demo - Wowser","loadState":4,"ts":"2026-01-27T00:44:54.020Z","mime":"text/html","status":200,"depth":1}
+{"id":"a8c4539c-ed7d-43d5-ba8c-1615dc950bb7","url":"https://minternet-blogs.exe.xyz/post/preserving-social-media","title":"Challenges of Preserving Social Media - minternet-blogs.exe.xyz","loadState":4,"ts":"2026-01-27T00:44:54.242Z","mime":"text/html","status":200,"depth":2}
+{"id":"07f62130-fe72-48c7-b19a-cbe554ad86e6","url":"https://minternet-blogs.exe.xyz/post/warc-file-format-explained","title":"The WARC File Format Explained - minternet-blogs.exe.xyz","loadState":4,"ts":"2026-01-27T00:44:54.241Z","mime":"text/html","status":200,"depth":2}
+{"id":"e66a825d-8a10-4d2b-a92a-5740c445bcf2","url":"https://minternet-blogs.exe.xyz/post/understanding-crawler-traps","title":"Understanding Crawler Traps - minternet-blogs.exe.xyz","loadState":4,"ts":"2026-01-27T00:44:55.178Z","mime":"text/html","status":200,"depth":2}
+{"id":"ad84f779-480e-4fbf-bc42-e44c0302c017","url":"https://minternet-wowser.exe.xyz/static/test.html","title":"404 Not Found","loadState":3,"ts":"2026-01-27T00:44:57.856Z","mime":"text/html","status":404,"depth":2}
+{"id":"d1395414-e164-441c-bf9f-c955bd6df43f","url":"https://minternet-blogs.exe.xyz/post/javascript-and-replay-challenges","title":"JavaScript and Web Archive Replay - minternet-blogs.exe.xyz","loadState":4,"ts":"2026-01-27T00:44:57.592Z","mime":"text/html","status":200,"depth":2}
+```
+
+This _much_ longer file has an entry for just about every other URL crawled as a result of those seeds.  
+
+Fun fact!  If we were to include `text: true` in our configuration YAML, Browsertrix would attempt to extract raw, full-text from each URL and would include it in these files.  That raw full-text can be extremely handy for full-text searching your web collection.  This can be done manually from the HTML present in the WARC files, but this is a nice quality-of-life feature that Browsertrix provides.
+
+### Fixing our missing volcano experiment details 🌋
+
+We're going to use what are called "behaviors" in Browsertrix to perform some actions during the crawl, that will capture the experiments data.
+
+One behavior is called `autoclick` which, generally speaking, will automatically click on clickable things in the page.  But we can tailor this to look for elements we want to target.  This uses a syntax similar to [CSS selectors](https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Selectors).
+
+Let's create a new YAML file so we don't clobber our previous crawl, and we'll give it a new collection name as well to create a new dictory:
+
+```yaml
+verbose: true
+collection: minternet-full-behaviors
+workers: 4
+generateWACZ: true
+limit: 500
+
+behaviors: autoclick,autofetch
+clickSelector: "button"
+
+seeds:
+  - url: https://minternet.exe.xyz/
+    scopeType: "domain"
+  - url: https://minternet-blogs.exe.xyz/
+    scopeType: "domain"
+    exclude:
+      - ".*minternet-blogs.exe.xyz/search.*"
+      - ".*minternet-blogs.exe.xyz/calendar.*"
+      - ".*minternet-blogs.exe.xyz/archive.*"
+  - url: https://minternet-recipes.exe.xyz/
+    scopeType: "domain"
+  - url: https://minternet-science.exe.xyz/
+    scopeType: "domain"
+  - url: https://minternet-wowser.exe.xyz/
+    scopeType: "domain"
+    exclude:
+      - ".*minternet-wowser.exe.xyz/random.*"
+```
+
+And let's now run the crawl with this updated YAML file:
+
+```yaml
+docker run -it \
+-v $(PWD):/crawls \
+webrecorder/browsertrix-crawler:latest \
+crawl \
+--config /crawls/minternet-full.yaml
+```
+
+Once the crawl is complete, follow these steps:
+1. Load ReplayWeb.page
+2. Load this new WACZ file, `collections/minternet-full-behaviors/minternet-full-behaviors.wacz`
+3. Navigate to the science site
+
+Now, when we click the "View details -->" button for the Volcano experiment, we should see this:
+
+![volcano-success.png](volcano-success.png)
+
+Success!  Other experiments on this page should work as well, as they all have a `<button>` element which was targeted by our `autoclick` behavior.
+
+This is a simplistic example, but it hints at the kind of per-site behaviors you can apply.  A more robust solution would be to use [Custom Behaviors](https://crawler.docs.browsertrix.com/user-guide/behaviors/#loading-custom-behaviors) which allow you to write Javascript code to interact with the website via code.  The way we approached things, that autoclicking of `<button>` applies to _all_ seeds in our crawl.  If we write our own custom behaviors, we could target only specific domains or sites.  One must balance this ability versus the development time, maintenance, and QA.
+
+It would be normal to assume that the URL we captured from this behavior would be in that `extraPages.jsonl` file, but if you look at it from this crawl, it's not there.  What's going on?  
+
+Think back to week 2 when we were looking at WARC files in detail.  The URLs we find in the Browsertrix `pages.jsonl` and `extraPages.jsonl` files might be conceptualized as "websites" we visited, but they do not contain _every_ network request that was performed.  Network requests like this data fetch are stored in the WARCs.
+
+We could pour through the WARC files at `collections/minternet-full-behaviors/archive` and find this request + response.  But the ReplayWeb.page helps us confirm we captured it as well.
+
+If you click on the "Resources" tab of ReplayWeb.page from the last WACZ file we loaded, you can search for the URL `https://minternet-science.exe.xyz/api/experiment/1` and see it's found:
+
+![rwp-resources-ajax.png](rwp-resources-ajax.png)
+
+This is confirming why, when we click the button now, it works: we have captured that network request as a resource that is used during replay of the website.  Neat stuff!
+
+If you're feeling adventurous, there is _another_ way we can confirm that we captured this resource.  We haven't talked much about CDX and CDXJ files, but this URL will be in there as well.  These CDX/J files are created _after_ the crawl by parsing and analyzing the WARC files.  URLs are extracted and saved in these files for easy access, which in turn tell us precisely which WARC file (and how many bytes into the file) that URL request + response can be found.
+
+Here is a screenshot of the CDXJ file for this crawl, `collections/minternet-full-behaviors/indexes/index.cdxj`, showing this URL is present:
+
+![cdxj-resource.png](cdxj-resource.png)
+
+It can seem like a lot of misdirection, and duplicative information, but each format serves a purpose.  Over time, it becomes deeply satisfying to know which parts of the crawl -- WARC files, CDX/J files, pages JSONLines files, WACZ, logs, etc. -- that we might look for information to help us QA a crawl.
 
 ## Reflection Prompts
 
