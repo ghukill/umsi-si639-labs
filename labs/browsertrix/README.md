@@ -478,6 +478,126 @@ Here is a screenshot of the CDXJ file for this crawl, `collections/minternet-ful
 
 It can seem like a lot of misdirection, and duplicative information, but each format serves a purpose.  Over time, it becomes deeply satisfying to know which parts of the crawl -- WARC files, CDX/J files, pages JSONLines files, WACZ, logs, etc. -- that we might look for information to help us QA a crawl.
 
+### Crawling with a Browser Profile
+
+One unique and powerful feature of Browsertrix is the ability to run the crawl with a [browser profile](https://github.com/ghukill/warcstudio).  From the docs,
+
+> "Browsertrix Crawler can use existing browser profiles when running a crawl. This allows the browser to be pre-configured by logging in to certain sites or changing other settings, before running a crawl. By creating a logged in profile, the actual login credentials are not included in the crawl, only (temporary) session cookies."
+
+Think of this a bit like your own browser where you log into websites that require authentication.  For many sites, once you login, you _stay_ logged in either for a duration of time or until you logout.  In browsertrix the browser profile approach works similarly.
+
+For this lab, we will create a browser profile, login to our UM Google account, save the browser profile, then run a crawl that targets a URL that is only available to logged in users. 
+
+First step is to run a special browsertrix command -- using the Browsertrix Docker image again -- that will allow us to create a browser profile:
+
+```shell
+docker run \
+-it \
+-p 6080:6080 \
+-p 9223:9223 \
+-v $PWD/profiles:/crawls/profiles/ \
+webrecorder/browsertrix-crawler:latest \
+create-login-profile \
+--url "https://drive.google.com"
+```
+
+For those not very experienced with Docker, the `-it` flag tells it to run in an "interactive" mode meaning to stay open until we close it.  Give the container 5-10 seconds to start, and then navigate to the following URL in your own browser:
+
+[http://localhost:9223/](http://localhost:9223/)
+
+What are we looking at here?  Browsertrix has started it's own tiny browser and made it available for us, the human user, to interact with it.  Using this ephemeral browser instance, we can login to sites and otherwise setup our browser profile.
+
+Because we started this process with the flag `--url "https://drive.google.com"` it opened up the page for us.  We can now login with our UM credentials.  
+
+NOTE: This is safe to do!  Browsertrix is running 100% on our own machines; there is no network traffic or credentials shared anywhere.  But it's worth taking precautions if doing this in a web archiving program, where others may have access to the web archiving context and thus the browser profile.
+
+Once you have logged in to your UM Google account, look for the "Create Profile" button near the top of page of the temporary browser this process started:
+
+![profile-finish.png](profile-finish.png)
+
+Once you click this button, you should see the message,
+
+> "Profile Created! You may now close this window."
+
+And the docker container we had started will have closed.  Congratulations, you have successfully created a browser profile that we can use for future crawls.
+
+This should have created a new `profiles/` directory in our current working directory.  Similar to our crawls, in this last Browsertrix Docker command we mounted our folder into the container so anything that happened inside the container would persist after it closed.  Looking at this directory, it's only a single file that is created:
+
+```text
+profiles
+└── profile.tar.gz
+```
+
+This single file contains the state of the browser after we had logged in -- aka a browser profile -- and is all that Browsertrix needs for the crawl.
+
+To test this browser profile effect, let's run two crawls for the same Google doc, one using our browser profile and one without.  
+
+1- Crawl WITH our browser profile:
+
+```shell
+docker run -it \
+-v $(PWD):/crawls \
+webrecorder/browsertrix-crawler:latest \
+crawl \
+--collection google-doc-with-profile \
+--url "https://docs.google.com/document/d/1MsEgxmQatvMcrvjvO01MYOIo9GVzALKTO7mdbL2Xmpg/edit?usp=sharing" \
+--scopeType page \
+--limit 5 \
+--profile /crawls/profiles/profile.tar.gz
+```
+- note the `--profile` where we pass the browser profile we created 
+
+2- Crawl WITHOUT our browser profile:
+
+```shell
+docker run -it \
+-v $(PWD):/crawls \
+webrecorder/browsertrix-crawler:latest \
+crawl \
+--collection google-doc-without-profile \
+--url "https://docs.google.com/document/d/1MsEgxmQatvMcrvjvO01MYOIo9GVzALKTO7mdbL2Xmpg/edit?usp=sharing" \
+--scopeType page \
+--limit 5
+```
+- note the absence of the `--profile` flag
+
+Finally, we can look at these crawls and see how they differ.  We did not use the `--generateWACZ` flag for either crawl, and will instead load the WARC files directly into ReplayWeb.page.
+
+Let's first load our crawl without the profile:
+
+1. Navigate to [https://replayweb.page/](https://replayweb.page/)
+2. Click "Choose File" button
+3. Navigate to the directory `collections/google-doc-without-profile/archive` and select the only WARC file present
+4. Click "Load"
+
+You should see something like this:
+
+![load-without-profile.png](load-without-profile.png)
+
+It has taken us straight to the "Resources" tab because it couldn't find any specific pages that look like a seed.  That's okay!  Crawls for a single URL like this can get a little wonky.  We just need to search for the URL we used for the crawl, `https://docs.google.com/document/d/1MsEgxmQatvMcrvjvO01MYOIo9GVzALKTO7mdbL2Xmpg/edit?usp=sharing`:
+
+![without-profile-url.png](without-profile-url.png)
+
+Finally, clicking on that link will bring up the crawl attempt for that URL without a browser profile:
+
+![without-profile-login-redirect.png](without-profile-login-redirect.png)
+
+That was a lot of work for some bad news!  Instead of a Google doc here, we see a login redirect because the ULR required a logged in account.  This is _very_ common in web archiving, and can be tricky to workaround.  Lucky for us, we did just that!
+
+Next, perform the same steps except select the WARC file from the local directory `collections/google-doc-with-profile/archive`.  Once loaded, and a search for the URL `https://docs.google.com/document/d/1MsEgxmQatvMcrvjvO01MYOIo9GVzALKTO7mdbL2Xmpg/edit?usp=sharing`, you should see this:
+
+![profile-load.png](profile-load.png)
+
+And finally, clicking on either link returned should bring up something similar to this:
+
+![profile-doc.png](profile-doc.png)
+
+Success!  You have performed a web crawl, using a browser profile with a logged in Google account, to access a Google doc that was restricted.  You'll notice the Google doc interface is a little buggy, e.g. it may keep saying "Reconnecting" or "Trying to connect" at the bottom.  While not ideal, we have still captured the page.  
+
+This exercise was _not_ about archiving Google docs in a reliable and high fidelity way, more about capturing a URL that required a logged in account.  There are likely other, better ways to capture Google docs (e.g PDF exports).  
+
+But since we have done it this way, note that your UM Google account is present in the upper-right of the captured page; it's as if you had accessed the page yourself.  This ability to capture content behind authentication is a powerful feature of Browsertrix.
+
 ## Reflection Prompts
 
 Coming soon...
