@@ -32,9 +32,11 @@ _NOTE: Experimental! Thar be dragons._
 
 GitHub Codespaces provides a browser-based Linux environment that can be used to run the labs in this repository without installing software locally. This can be especially helpful if you are unable (or prefer not) to install tools like Python, Docker, or other dependencies on your own machine.
 
-**Important:** You must create the Codespace from **your own fork** of this repository. Do **not** run a Codespace directly from the original repository.
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/ghukill/umsi-si639-labs)
 
 ### Instructions
+
+If the Codespace button above doesn't work, try this...
 
 1. Log in to your own GitHub account.
 
