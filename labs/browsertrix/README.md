@@ -156,7 +156,7 @@ Run the following to perform the same crawl, but this time saving the output loc
 
 ```shell
 docker run -it \
--v $(PWD):/crawls \
+-v $PWD:/crawls \
 webrecorder/browsertrix-crawler:latest \
 crawl \
 --verbose \
@@ -296,7 +296,7 @@ With that file in place, we'll run a crawl and utilize the YAML file for most of
 
 ```shell
 docker run -it \
--v $(PWD):/crawls \
+-v $PWD:/crawls \
 webrecorder/browsertrix-crawler:latest \
 crawl \
 --config /crawls/minternet-full.yaml
@@ -439,7 +439,7 @@ And let's now run the crawl with this updated YAML file:
 
 ```yaml
 docker run -it \
--v $(PWD):/crawls \
+-v $PWD:/crawls \
 webrecorder/browsertrix-crawler:latest \
 crawl \
 --config /crawls/minternet-full.yaml
@@ -536,7 +536,7 @@ To test this browser profile effect, let's run two crawls for the same Google do
 
 ```shell
 docker run -it \
--v $(PWD):/crawls \
+-v $PWD:/crawls \
 webrecorder/browsertrix-crawler:latest \
 crawl \
 --collection google-doc-with-profile \
@@ -551,7 +551,7 @@ crawl \
 
 ```shell
 docker run -it \
--v $(PWD):/crawls \
+-v $PWD:/crawls \
 webrecorder/browsertrix-crawler:latest \
 crawl \
 --collection google-doc-without-profile \
