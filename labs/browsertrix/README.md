@@ -600,4 +600,10 @@ But since we have done it this way, note that your UM Google account is present 
 
 ## Reflection Prompts
 
-Coming soon...
+1- Is this your first time using a Docker container?  and/or from the command line?  How did you find this dimension of running Browsertrix-Crawler?
+
+2- Do you find it confusing or empowering -- or both! -- that crawl configurations can be set in a configuration YAML file or as command line arguments?
+
+3- Can you think of any situations where Browsertrix might be a good fit, potentially better than `wget` or using the Archive-It service?
+
+4- While this lab was somewhat in depth, i.e. using browser profiles is a pretty advanced technique, what remains confusing or murky about Browsertrix?  if someone asked you on the street to explain what Browertrix is, what parts would feel challenging to explain?
