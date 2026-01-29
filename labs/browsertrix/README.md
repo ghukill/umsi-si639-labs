@@ -406,7 +406,7 @@ We're going to use what are called "behaviors" in Browsertrix to perform some ac
 
 One behavior is called `autoclick` which, generally speaking, will automatically click on clickable things in the page.  But we can tailor this to look for elements we want to target.  This uses a syntax similar to [CSS selectors](https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Selectors).
 
-Let's create a new YAML file so we don't clobber our previous crawl, and we'll give it a new collection name as well to create a new dictory:
+Let's create a new YAML file called `minternet-full-behaviors.yaml` so we don't clobber our previous crawl, and we'll give it a new collection name as well to create a new dictory:
 
 ```yaml
 verbose: true
@@ -444,7 +444,7 @@ docker run -it \
 -v $PWD:/crawls \
 webrecorder/browsertrix-crawler:latest \
 crawl \
---config /crawls/minternet-full.yaml
+--config /crawls/minternet-full-behaviors.yaml
 ```
 
 Once the crawl is complete, follow these steps:
