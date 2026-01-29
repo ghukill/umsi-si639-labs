@@ -20,6 +20,8 @@ First, ensure that Docker is installed on your machine:
 - [Mac installation](https://docs.docker.com/desktop/setup/install/mac-install/)
 - [Linux installation](https://docs.docker.com/engine/install/)
 
+If you have issues installing Docker on your machine, please see the ["GitHub Codespaces"](../../README.md) section in the main README.
+
 Our goal is the ability to invoke a `docker ...` command from a terminal shell, which is how we'll invoke Browsertrix.  Once you think you have Docker installed, run the following command to confirm it's working:
 
 ```shell
