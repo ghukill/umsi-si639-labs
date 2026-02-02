@@ -100,9 +100,7 @@ Our approach here will be the following:
 2. Use `wb-manager` CLI to create a new web archiving collection
 3. Use `wayback` CLI with a `--record` flag to perform user-based, transactional capture
 4. Replay or web archive via a `wayback` CLI Wayback instance
-5. ...
-6. ...
-7. ...
+5. Look at a CDX/J index file to understand how it powers a Wayback instance
 
 ## Instructions
 
@@ -149,7 +147,7 @@ cd pywb-lab
 
 Now that we've got a good place to work, let's scaffold a new collection using `wb-manager`:
 ```shell
-wb-manager init minternet 
+wb-manager init minternet
 ```
 
 This should create a file structure like the following:
@@ -215,9 +213,138 @@ Note the new WARC file under the `archive/` folder, and the new index file under
 
 ### 4. Replay or web archive via a `wayback` CLI Wayback instance
 
-TODO............
+Now that we have a web archive collection folder, let's use `pywb` to launch a Wayback instance we can interact with and see our capture.
 
+Run the following from the `scratch/pywb-lab` directory where you started the last command from:
+```shell
+wayback
+```
 
-### Reflection Prompts
+This starts a Wayback server that we can access at [http://localhost:8080](http://localhost:8080) and should look like this:
+
+![wayback-default.png](wayback-default.png)
+
+The single link for `/minternet` is reflecting the collection we created with the command `wb-manager init minternet` and the folder we can see locally:
+```text
+.
+├── collections
+│   └── minternet   <-----------------------
+│       ├── archive
+│       │   └── rec-20260202210600135574-LIBM-0534313.warc.gz
+│       ├── indexes
+│       │   └── autoindex.cdxj
+│       ├── static
+│       └── templates
+├── static
+└── templates
+```
+
+Before we click around and do more, it's a good time to return to this core convention of `pywb`.  While you can override these defaults, it's expecting a `collections/` folder from where it's run from, and under that, each folder represents a "collection".  You can read more about that [here in the documentation](https://pywb.readthedocs.io/en/latest/manual/configuring.html#directory-structure).
+
+But let's get back to our Wayback instance!
+
+If you click on the `minternet/` link, you should get an interface that looks like this:
+
+![wayback-collection.png](wayback-collection.png)
+
+For many -- myself included at first! -- this can be a bit confusing.  Where are all the helpful links and tabs that sites like ReplayWeb.page give us (more on that later)?  How do I just start browsing around?
+
+The answer is that this interface reveals something somewhat foundational to using `pywb`: it's a core library, and can be extended to do amazing things, and so it's missing some of these nice-to-have, casual features we might expect in some places.   But fear not, we can still browse our archived content.
+
+We know that we started with the URL `https://minternet.exe.xyz/`, so let's pop that into the search box and click "Search".  What we should see is a somewhat familiar Wayback interface, maybe you've seen this in the Internet Archive, showing different capture dates for this URL:
+
+![wayback-capture-dates.png](wayback-capture-dates.png)
+
+In this screenshot, you can see via the single blue circle that I have a single capture on February 2nd.  Clicking that, and then selecting a capture time from that date, we finally see a replay of our captured content!  From here you can click around.
+
+Try to remember some links you did click on, and actions you took (e.g. [searches in blogs](https://minternet-blogs.exe.xyz/search)).  Does the content look correct?  Are things missing?
+
+One very concrete example is the following from the science site homepage, [https://minternet-science.exe.xyz/](https://minternet-science.exe.xyz/).  During my clicking around capture, I clicked on "View Details" for a couple of experiments, but not all of them.  The following shows a successful display of details for an experiment I had clicked on:
+
+![science-success.png](science-success.png)
+
+And here is clicking on "View Details" for an experiment I did not during capture:
+
+![science-fail.png](science-fail.png)
+
+This should feel similar to the Browsertrix-Crawler lab, where we saw this fail in a similar fashion, but then fixed it with Browsertrix "behaviors" that clicked on all `<button>` elements.  The key difference here, is that only the experiments that I clicked on during my live, transactional capturing are saved in the archive.  This shows both the precision and potential gaps that transactional captures like this can result in.
+
+Let's navigate back to the screen where we had clicked on our collection and were presented with a search box: [http://localhost:8080/minternet/](http://localhost:8080/minternet/).
+
+As you may have noticed, all the websites in the Minternet ecosystem contain `exe.xyz`.  This is the **domain** of the URL.  If we extend that out a bit and look at parts of the URL like `minternet.exe.xyz` or `minternet-blogs.exe.xyz`, `minternet` and `minternet-blogs` are **sub-domains** of that domain.  
+
+Another example is the site where the labs are hosted, `https://ghukill.github.io/umsi-si639-labs/`:
+- `github.io` is the **domain**
+- `ghukill` is the **sub-domain**
+- `ghukill.github.io` is the **host**
+
+It would be tempting to assume that all people and documentation adhere to these rules, or that all URLs follow this pattern... but that's just not the case.  Sometimes "domain" and "host" are used somewhat interchangeably, not all URLs have subdomains, etc.  But it's a decently rough heuristic for the time being.
+
+Why bring all this up?  The search interface that we navigated back to has a "Search Options" button which will reveal the following:
+
+![search-options.png](search-options.png)
+
+Using some of our sleuthing and knowledge from above, let's try a search where `Match Type = domain` and the value is `exe.xyz`:
+
+![search-domain.png](search-domain.png)
+
+Which brings back the results:
+
+![search-results.png](search-results.png)
+
+What's notable about these results, are that they include virtually _all_ HTTP requests that were made during our browsing.  We see some URLs we recognize in there like `https://minternet.exe.xyz/` (maybe even a few times!  more on that later...), but some unexpected ones like `https://minternet-recipes.exe.xyz/style.css`.  In a real web crawl, the pages you capture may have _lots_ more little things requested and retrieved like CSS, Javascript files, font files, images, etc.  
+
+Under the hood, what is `pywb` doing here?  How did it find these 76 URLs that contained `exe.xyz` as part of the domain?  To the CDX/J indexes with us for the answer!
+
+### 5. Look at a CDX/J index file to understand how it powers a Wayback instance
+
+At the top of this lab we identified some tools that `pywb` comes with when installed.  We can refer to them as "tools" insofar as they are standalone CLI tools we can use, but it's also correct to think of them as "components" of the `pywb` "ecosystem".   One of these tools is called `warcserver`, and it's the _really_ low-level tool/library that is doing work for us during replay in Wayback.
+
+When we perform that search we just did a minute ago for all `exe.xyz` domain URLs in our collection, the `warcserver` component used a CDX/J index file in our collection as its data source.  Looking at our collection file structure again, it's here:
+
+```tree
+.
+├── collections
+│   └── minternet
+│       ├── archive
+│       │   └── rec-20260202210600135574-LIBM-0534313.warc.gz
+│       ├── indexes
+│       │   └── autoindex.cdxj       <----------------------------
+│       ├── static
+│       └── templates
+├── static
+└── templates
+```
+
+This was created automatically as we were clicking around capturing content.  This is related to the `-a --auto-internal 5` flags we set during our recording session: 
+
+```text
+-a, --autoindex       Enable auto-indexing
+--auto-interval AUTO_INTERVAL
+                      Auto-indexing interval (default 30 seconds)
+```
+
+This quiet little flag we set, and the invisible work it kicked off during our recording, is super important!  As we wrote all HTTP request + responses to the WARC files, every 5 seconds, it would "index" those additions to the WARC files by adding lines to the `collections/minternet/indexes/autoindex.cdxj` file.  
+
+In very large web archives, e.g. the Internet Archive or Archive-It collections, this "indexing" work is one of the most compute intensive parts.  The CDX/J index files are like a **map** to the WARC files, providing us with a quick and efficient way to lookup specific URLs or other assets and find out where they live in the WARC files.  Remember, a collection might have 1, 10, 100, 1,000, or more WARC files!  If you wanted to replay URL `https://example.com/foo`, where is that request + response in all those WARC files, with millions of URLs captured?  The CDX/J file can tell you quickly and efficiently.
+
+Let's open the file and look at a few of the first lines:
+
+```text
+com,tailwindcss,cdn)/ 20260202210635 {"url": "https://cdn.tailwindcss.com/", "mime": "unk", "status": "302", "digest": "3I42H3S6NNFQ2MSVX7XZKYAYSCX5QBYJ", "length": "776", "offset": "101040", "filename": "rec-20260202210600135574-LIBM-0534313.warc.gz"}
+com,tailwindcss,cdn)/3.4.17 20260202210635 {"url": "https://cdn.tailwindcss.com/3.4.17", "mime": "text/javascript", "status": "200", "digest": "HUDGL55QDLMNKDCZCTDP53IYBXEBDIZP", "length": "127424", "offset": "102468", "filename": "rec-20260202210600135574-LIBM-0534313.warc.gz"}
+xyz,exe,minternet)/ 20260202210559 {"url": "https://minternet.exe.xyz/", "mime": "text/html", "status": "200", "digest": "J33FQDHFNOC4GXETRK34J2UDZBIWCVFU", "length": "647", "offset": "0", "filename": "rec-20260202210600135574-LIBM-0534313.warc.gz"}
+xyz,exe,minternet)/ 20260202210600 {"url": "https://minternet.exe.xyz/", "mime": "text/html", "status": "200", "digest": "J33FQDHFNOC4GXETRK34J2UDZBIWCVFU", "length": "645", "offset": "1348", "filename": "rec-20260202210600135574-LIBM-0534313.warc.gz"}
+xyz,exe,minternet)/favicon.ico 20260202210600 {"url": "https://minternet.exe.xyz/favicon.ico", "mime": "text/html", "status": "404", "digest": "77LXB6ILN7UYN3EQOI27ZITTGGQNQ3TY", "length": "504", "offset": "2704", "filename": "rec-20260202210600135574-LIBM-0534313.warc.gz"}
+xyz,exe,minternet)/favicon.ico 20260202210626 {"url": "https://minternet.exe.xyz/favicon.ico", "mime": "text/html", "status": "404", "digest": "77LXB6ILN7UYN3EQOI27ZITTGGQNQ3TY", "length": "503", "offset": "86114", "filename": "rec-20260202210600135574-LIBM-0534313.warc.gz"}
+xyz,exe,minternet)/favicon.ico 20260202210634 {"url": "https://minternet.exe.xyz/favicon.ico", "mime": "text/html", "status": "404", "digest": "77LXB6ILN7UYN3EQOI27ZITTGGQNQ3TY", "length": "504", "offset": "95348", "filename": "rec-20260202210600135574-LIBM-0534313.warc.gz"}
+xyz,exe,minternet)/favicon.ico 20260202210649 {"url": "https://minternet.exe.xyz/favicon.ico", "mime": "text/html", "status": "404", "digest": "77LXB6ILN7UYN3EQOI27ZITTGGQNQ3TY", "length": "504", "offset": "247917", "filename": "rec-20260202210600135574-LIBM-0534313.warc.gz"}
+xyz,exe,minternet)/favicon.ico 20260202210701 {"url": "https://minternet.exe.xyz/favicon.ico", "mime": "text/html", "status": "404", "digest": "77LXB6ILN7UYN3EQOI27ZITTGGQNQ3TY", "length": "502", "offset": "269406", "filename": "rec-20260202210600135574-LIBM-0534313.warc.gz"}
+xyz,exe,minternet-blogs)/ 20260202210602 {"url": "https://minternet-blogs.exe.xyz/", "mime": "text/html", "status": "200", "digest": "4HLOQ5IRMXNZAIIJ6DPVMV4EHBPGG76K", "length": "1494", "offset": "3882", "filename": "rec-20260202210600135574-LIBM-0534313.warc.gz"}
+```
+
+These are the first 10 lines from the CDX/J file created from our capture.
+
+## Reflection Prompts
 
 Coming soon...
