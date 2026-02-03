@@ -1,76 +1,5 @@
 # Lab: pywb (record + replay)
 
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-## TODO
-
-### General
-- create collection
-
-```shell
-wb-manager init gmail-test
-```
-- really just creates a directory structure!
-
-### Recording
-- simple record 
-
-```shell
-
-```
-
-- when recording, you get Resources (HTTP captures) but there is no sense of a seed
-  - therefore in RPW, no links in URL
-- wayback record help
-
-```text
-usage: wayback [-h] [-V] [-p PORT] [-b BIND] [-t THREADS] [--debug] [--profile] [--live] [--record] [--proxy PROXY] [-pt PROXY_DEFAULT_TIMESTAMP] [--proxy-record] [--proxy-enable-wombat] [--enable-auto-fetch] [-a]
-               [--auto-interval AUTO_INTERVAL] [--all-coll ALL_COLL] [-d DIRECTORY]
-
-pywb Wayback Machine Server
-
-options:
-  -h, --help            show this help message and exit
-  -V, --version         show program's version number and exit
-  -p PORT, --port PORT  Port to listen on (default 8080)
-  -b BIND, --bind BIND  Address to listen on (default 0.0.0.0)
-  -t THREADS, --threads THREADS
-                        Number of threads to use (default 4)
-  --debug               Enable debug mode
-  --profile             Enable profile mode
-  --live                Add live-web handler at /live
-  --record              Enable recording from the live web
-  --proxy PROXY         Enable HTTP/S proxy on specified collection
-  -pt PROXY_DEFAULT_TIMESTAMP, --proxy-default-timestamp PROXY_DEFAULT_TIMESTAMP
-                        Default timestamp / ISO date to use for proxy requests
-  --proxy-record        Enable proxy recording into specified collection
-  --proxy-enable-wombat
-                        Enable partial wombat JS overrides support in proxy mode
-  --enable-auto-fetch   Enable auto-fetch worker to capture resources from stylesheets, <img srcset> when running in live/recording mode
-  -a, --autoindex       Enable auto-indexing
-  --auto-interval AUTO_INTERVAL
-                        Auto-indexing interval (default 30 seconds)
-  --all-coll ALL_COLL   Set "all" collection
-  -d DIRECTORY, --directory DIRECTORY
-                        Specify root archive dir (default is current working directory)
-```
-
-### create a WACZ file from a collection
-
-```shell
-wacz create --output collections/recorder-1/recorder-1.wacz collections/recorder-1/archive/*.*
-```
-- contains
-
-### REPLAY
-- all you need is `wayback` and it'll serve collections
-- prefix searching requires full `https://minternet.exe.xyz`
-
-### The big reveal.... all wrapped up in archiveweb.page
-- 
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 ## Overview
 
 This lab looks at the python library `pywb` ([Github](https://github.com/webrecorder/pywb), [documentation](https://pywb.readthedocs.io/en/latest/)),
@@ -101,6 +30,8 @@ Our approach here will be the following:
 3. Use `wayback` CLI with a `--record` flag to perform user-based, transactional capture
 4. Replay or web archive via a `wayback` CLI Wayback instance
 5. Look at a CDX/J index file to understand how it powers a Wayback instance
+6. Create WACZ file that includes all assets from a collection
+7. Introduce the ArchiveWeb.page application
 
 ## Instructions
 
@@ -343,7 +274,96 @@ xyz,exe,minternet)/favicon.ico 20260202210701 {"url": "https://minternet.exe.xyz
 xyz,exe,minternet-blogs)/ 20260202210602 {"url": "https://minternet-blogs.exe.xyz/", "mime": "text/html", "status": "200", "digest": "4HLOQ5IRMXNZAIIJ6DPVMV4EHBPGG76K", "length": "1494", "offset": "3882", "filename": "rec-20260202210600135574-LIBM-0534313.warc.gz"}
 ```
 
-These are the first 10 lines from the CDX/J file created from our capture.
+These are the first 10 lines from the CDX/J file created from our capture.  To tie these CDX/J lines back to our discussion about domains, sub-domains, and hosts, we have to take a very short detour into SURTs (Sort-friendly URI Reordering Transform).
+
+By inverting a URL Like `https://minternet.exe.xyz/favicon.ico` into the SURT `xyz,exe,minternet)/favicon.ico`, these make the CDX/J files effectively sorted by domain > sub-domain > URL path.  Why does this matter?  Imagine we had 1 million URLs in our web archive, from thousands of different domains.  If we create SURTs in this format, software like `pywb` can very quickly find a particular row in the CDX/J files because the domains are sorted.
+
+This gets into some fairly advanced search and retrieval concepts, probably out of scope for this lab.  But it felt important to touch on, to understand the value that `pywb` provides to the ecosystem. 
+
+When we run `wayback`, an instance of `warcserver` is quietly started as well.  When we interact with that search interface, the `warcserver` instance queries the CDX/J files -- efficiently, as we now now! -- which returns the CDX/J line(s) that match.  
+
+If finding the row for URL `https://minternet.exe.xyz/favicon.ico` in the CDX/J files is the first important step, the second important step is reading that line and understanding a) which WARC file the data is in, and b) the precise location of the data _inside_ that WARC file.  Looking at one of the lines from our file:
+
+```text
+xyz,exe,minternet)/ 20260202210600 {"url": "https://minternet.exe.xyz/", "mime": "text/html", "status": "200", "digest": "J33FQDHFNOC4GXETRK34J2UDZBIWCVFU", "length": "645", "offset": "1348", "filename": "rec-20260202210600135574-LIBM-0534313.warc.gz"}
+```
+
+This tells us that the request + response is in WARC file `rec-20260202210600135574-LIBM-0534313.warc.gz` (the collection folder is implied), it's `1348` (`offset`) bytes from the start of the file, and it's `645` (`length`) bytes long.  
+
+This has been a lot, but those are the broad strokes of how all this infrastructure works!  
+
+1. the Wayback wants to show url `https://example.com/foo`
+2. it makes a request to the `warcserver`
+3. it reads the CDX/J files, sorted by SURTs, and goes straight to `com,example)/foo`
+4. it reads that row and finds out the data is in file `abc123.warc.gz`
+5. it's 1000 bytes from the start, and 200 bytes long
+
+That is a pretty efficient way to perform a "random access" read from a large web archive.  
+
+To finish this little CDX/J side quest, let's recreate the CDX/J file and recreate it with `pywb`.
+
+First, delete the file `collections/minternet/indexes/autoindex.cdxj`.  You can do this in ways you are comfortable with, or in the terminal:
+```shell
+rm collections/minternet/indexes/autoindex.cdxj
+```
+
+We can now recreate them with another `pywb` utility called `cdx-indexer`:
+
+```shell
+cdx-indexer --cdxj --sort --output collections/minternet/indexes/index.cdxj collections/minternet/archive/
+```
+
+The file created should look _very_ similar, if not identical, to the original index that was created during the capture.  This new CDX/J file was created by analyzing the WARC files for this collection.
+
+### 6. Create WACZ file that includes all assets from a collection
+
+So far, we've:
+
+1. Run `wayback` in record mode, and captured content that was saved to our `minternet/` collection folder
+2. Replayed the content using `wayback` using the `minternet/` collection as the root
+3. Analyzed, deleted, and recreated CDX/J files associated with this collection
+
+One final action we can take -- still using the `pywb` library -- is to zip up the entire `minternet/` collection as a single WACZ file.
+
+We can do that with a single command:
+```shell
+wacz create --detect-pages --output minternet.wacz collections/minternet/archive/*.*
+```
+
+We should now see a WACZ file in our curent working directory:
+```text
+.
+├── collections
+│   └── minternet
+│       ├── archive
+│       │   └── rec-20260202210600135574-LIBM-0534313.warc.gz
+│       ├── indexes
+│       │   └── index.cdxj
+│       ├── static
+│       └── templates
+├── minternet.wacz         <-----------------------
+├── static
+└── templates
+
+9 directories, 3 files
+```
+
+To confirm ourselves that the process worked, let's use our trusty [https://replayweb.page/](https://replayweb.page/) and test this WACZ file:
+
+1. Load [https://replayweb.page/](https://replayweb.page/)
+2. Click "Choose File" and find the WACZ file
+
+If all goes well, it should look like the following, confirming that our WACZ file is a fully encapsulated web archive:
+
+![wacz-load.png](wacz-load.png)
+
+### 7. Introduce the ArchiveWeb.page application
+
+Now that we've done all that work with `pywb`, seeing what amazing functionality it has, understanding a bit more how it supports an ecosystem of opensource tools... it's time to reveal there is a handy application called [ArchiveWeb.page](https://archiveweb.page/) that basically wraps up all that functionality as a standalone, installable application!
+
+It's outside the scope of this lab to walkthrough ArchiveWeb.page, but please do consider installing it and exploring how it works!  With your `pywb` experience, _much_ of the interface, patterns, and mechanics should be very familiar.
+
+It's worth noting that it -- to my knowledge -- does _not_ use `pywb`, but that's okay.  We also noted that about Browsertrix-Crawler, which has moved away from using `pywb` directly.  These tools the Chrome DevTools Protocol (CDP) to capture HTTP requests and responses, intead of `pywb` as a proxy.  Tools like `brozzler` use tools like `warcprox` (we'll see this in a later lab!) to capture content.  The point here is that there are _lots_ of ways to capture HTTP requests + responses with the goal of creating WARC files.  Despite the evolution in this space, `pywb` continues to be used by many projects and communities, and it's patterns are widely recognizable in web archiving tools of past and future!
 
 ## Reflection Prompts
 
