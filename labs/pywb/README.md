@@ -367,4 +367,8 @@ It's worth noting that it -- to my knowledge -- does _not_ use `pywb`, but that'
 
 ## Reflection Prompts
 
-Coming soon...
+1- What are you initial impressions of performing a "transactional" web crawl with `pywb`, where only sites you visit and actions you take in your browser are captured?  What are the pros and cons compared to a "crawl" like that of Browsertrix or Archive-It?
+
+2- This is our first close look at CDX/J index files.  Conceptually, why are they helpful for web archives?  Do you think they are more aligned with preservation or access of web archives?
+
+Bonus- If you had an opportunity to experiment with the standalone ArchiveWeb.page application, how do you think it compares to `pywb`?
