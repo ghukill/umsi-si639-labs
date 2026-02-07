@@ -42,9 +42,14 @@ If you have not already, clone the Github repository [https://github.com/ghukill
 git clone https://github.com/ghukill/umsi-si639-labs
 ```
 
-Move into the repository:
+Move into the labs repository:
 ```shell
 cd umsi-si639-labs
+```
+
+Pull any recent changes to this repository:
+```shell
+git pull origin main
 ```
 
 Create a python virtual environment with `uv`:
@@ -57,11 +62,32 @@ Install all dependencies:
 uv sync
 ```
 
+Activate this virtual environment:
+```shell
+source .venv/bin/activate
+```
+
+_Note: for the following commands, you may see some warning outputs... that's okay.  Just look for the last line which is the final response from the command._
+
 Confirm that `pywb` is installed:
 ```shell
 pywb --version
-# pywb 2.9.1
+# pywb 2.9.1   <-------- looking for this in output
 ```
+
+Confirm that `wb-manager` can be run:
+```shell
+wb-manager --version
+# wb-manager 2.9.1   <-------- looking for this in output
+```
+
+Confirm that `wacz` can be run:
+```shell
+wacz --version
+# wacz 0.5.0 -- WACZ File Format: 1.1.1   <-------- looking for this in output
+```
+
+If those three commands run successfully, you should be good to go!
 
 ### 2. Use `wb-manager` CLI to create a new web archiving collection
 
@@ -74,6 +100,12 @@ Let's create a directory for this lab and move into it:
 ```shell
 mkdir pywb-lab
 cd pywb-lab
+```
+
+Let's double-check we're in the right directory:
+```shell
+pwd
+# <unique to your machine>/umsi-si639-labs/scratch/pywb-lab
 ```
 
 Now that we've got a good place to work, let's scaffold a new collection using `wb-manager`:
