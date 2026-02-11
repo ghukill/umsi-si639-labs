@@ -229,7 +229,53 @@ Casting our mental and conceptual net _way_ into the distance.... how might a cr
 
 ### 4- The Console
 
+(Re)navigate to our SPA website: `https://minternet-wowser.exe.xyz/app/home`.  Now, click the "Console" tab:
 
+![console-tab.png](console-tab.png)
+
+If it's your first time using the console in DevTools, you may have some warnings or notifications to close.  
+
+The console is a place to interactively run Javascript code!  It's an incredibly helpful tool when building websites, and it's equally helpful sometimes for QA-ing a crawl to see what javascript code _would_ do.  
+
+To demonstrate that it runs javascript code, we can try a classic.  Paste the following into the command prompt and hit enter:
+
+```javascript
+alert("Hello world! I was triggered from the console.  Web archiving is the bee's kness.");
+```
+
+![alert-hello-world.png](alert-hello-world.png)
+
+If it's your first time pasting code, it may ask you to allow this by typing "allow paste" and hitting enter.  Then it should work.
+
+We just ran some javascript, and an alert box should have popped up. How cool _and_ annoying at the same time!
+
+Now, we can use this console to understand how the SPA website works.  We'll jump around a bit between tabs, something quite common in DevTools work.
+
+First, right-click the "Gallery" button, bringing up the DOM element related to the button (yep, we've done this before):
+
+![gallery-button.png](gallery-button.png)
+
+If you double click the text next to `onclick=` you should be able to select it.  What we want to do is copy the javascript that clicking that button fires which is the following:
+
+```javascript
+navigate('/app/gallery');
+```
+
+With that copied, let's navigate _back_ to the Console tab, paste that in, and run it:
+
+![gallery-nav-js.png](gallery-nav-js.png)
+
+Lo and behold, it has navigated the website to the Gallery content!  This is a lot of fanfare to confirm something we may have been able to guess, but it's javascript that is changing the content in this page.  In all likelihood, a crawler without special instructions would miss these "sub-pages" of the SPA website.  If it was critical to capture this content, we might have a clue for how to tell crawlers to get it (e.g. _clicking_ on all `<a>` tags, not just extracting their `href` property target URLs).
+
+### 5- So, what does an archived website look like in DevTools?
+
+With all this DevTool-ing available to us now, how could we QA an actual archived website?  what does it look like when applied to replayed, captured content?
+
+The answer is it will vary depending on the crawler + replay approach, but often helpful information one way or another!  Let's try looking at a crawl of the Minternet via Archive-It.
+
+With your dev tools open, open the "Network" tab, clear the contents, and navigate to `https://wayback.archive-it.org/30907/20260110184810/https://minternet-science.exe.xyz/`.  What do you notice?  One of the first things that jumps out is a red line in the network tab for our familiar "featured" asset:
+
+![ait-science-network.png](ait-science-network.png)
 
 ## Reflection Prompts
 
