@@ -10,7 +10,7 @@ As is evident, one of the primary initial use cases was helping developers _buil
 
 In this lab, we'll primarily look at DevTools as a tool to help us QA crawls.  As we build a foundation of what DevTools can do, we'll take a peek at other affordances they provide, e.g. [Chrome DevTools Protocol (CDP)](https://chromedevtools.github.io/devtools-protocol/) for crawlers to use directly.
 
-_NOTE: while this lab focuses on developer tools for Chrome, most browsers like Firefox, Safari, Edge, etc., have something similar.  I'm most familiar with Chrome's DevTools, and for better or worse they might be the most widely cited and used in web archiving at the moment, but it by no means needs to _stay_ that way!  I'm likely not alone in welcoming a future where our Internet browser ecocsystem diversifies, and with that, new developer tools like this.
+_NOTE: while this lab focuses on developer tools for Chrome, most browsers like Firefox, Safari, Edge, etc., have something similar.  I'm most familiar with Chrome's DevTools, and for better or worse they might be the most widely cited and used in web archiving at the moment, but it by no means needs to _stay_ that way!  I'm likely not alone in welcoming a future where our Internet browser ecosystem diversifies, and with that, new developer tools like this.
 
 Lastly, we will use "DevTools", "dev tools", "developer tools", and countless other combinations; we are referring to the same thing.  The only more precise term we might use is CDP (Chrome DevTools Protocol) which is a protocol linked to above.
 
@@ -18,13 +18,13 @@ Lastly, we will use "DevTools", "dev tools", "developer tools", and countless ot
 
 ### 1- Opening DevTools and configuring our workspace
 
-Personally, I find the easiest way to open DevTools is to right-click any website and select "Inspect".  You can also the triple dot "hamburger" icon in Chrome and select `More Tools > Developer Tools`.  There are also countless keyboard shortcuts, worth a Googling if you prefer that!
+Personally, I find the easiest way to open DevTools is to right-click any website and select "Inspect".  You can also use the triple dot "hamburger" icon in Chrome and select `More Tools > Developer Tools`.  There are also countless keyboard shortcuts, worth a Googling if you prefer that!
 
-Once opened, if you have never configured your dev tools workspace, will look roughly like this:
+Once opened, if you have never configured your dev tools workspace, it will look roughly like this:
 
 ![dev-tools-open.png](dev-tools-open.png)
 
-For the sake of this lab, please follow these steps to configure the worksapce which will ensure what you see matches examples mentioned here.
+For the sake of this lab, please follow these steps to configure the workspace which will ensure what you see matches examples mentioned here.
 
 First, click the triple dots in the upper right, then set "Dock Side" to "Dock to Bottom".  This moves the dev tools window to the bottom; this will help when we're looking at the network tab.
 
@@ -44,7 +44,7 @@ And voila, we're ready to analyze!
 
 ### 2- Observe network tab for a live website
 
-Click the "Network" tab if not already there already, then click the "Clear network log" button which is a circle with a cross through it in the upper-left:
+Click the "Network" tab if not already there, then click the "Clear network log" button which is a circle with a cross through it in the upper-left:
 
 ![clear-network-button.png](clear-network-button.png)
 
@@ -68,7 +68,7 @@ The top section "Response Headers" is metadata about the response:
 
 - we get the full URL, `https://minternet-science.exe.xyz/`
 - we see it performed a `GET` HTTP request
-- we receieved a `200` status code from the server
+- we received a `200` status code from the server
 - we even see the host of remote server it came from, `16.145.126.153:443` (the port `:443` suggests `https`)
 
 If we scroll down and look at the "Request Headers" we see metadata about the request the browser engine made:
@@ -76,7 +76,7 @@ If we scroll down and look at the "Request Headers" we see metadata about the re
 - `Accept` is what kind of responses it would accept
 - etc.
 
-Won't touch on them all, but would like to point out one for now `User-Agent` with a value of `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36`.  This the user agent of my browser making this request.  Pointing this out, because during crawls, this is the request headers that crawlers can optionally set to inform websites the request is coming from a crawler.  There all _kinds_ implications for user agents, well out of scope today, but suffice to say it's good to be familiar with this header.
+Won't touch on them all, but would like to point out one for now `User-Agent` with a value of `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36`.  This is the user agent of my browser making this request.  Pointing this out, because during crawls, this is the request headers that crawlers can optionally set to inform websites the request is coming from a crawler.  There are all _kinds_ of implications for user agents, well out of scope today, but suffice to say it's good to be familiar with this header.
 
 Moving on, let's click the "Preview" tab from this specific request:
 
@@ -91,7 +91,7 @@ Clicking the "Response" tab will show that raw HTML:
 The preview and response tabs are quite helpful as you get deeper into QA:
 - was that image what we thought it was?
 - what is the precise HTML that was returned for the root page, before the browser engine touched it?
-- what is the API response for an asychronous request made on the page?  more on this one in a moment!
+- what is the API response for an asynchronous request made on the page?  more on this one in a moment!
 
 We'll skip tabs "Initiator", "Timing" and "Cookies" for now.
 
@@ -105,11 +105,11 @@ We can also introduce the network tab filtering at this point.  With the row cli
 
 ![xhr-filter.png](xhr-filter.png)
 
-What happened?  what is XHR?  To understand these, and this "features" network row, we need to backup a little bit.
+What happened?  what is XHR?  To understand these, and this "featured" network row, we need to backup a little bit.
 
 As noted, browser engines will often make network requests for assets beyond just the original HTML document.  These are often referred to as "fetch" or "asynchronous" or "async" requests.  Most of the time, these are initiated by Javascript, but CSS and other mechanisms can trigger them too.  
 
-Back in the day, most of these requests were to URLs that would return XML and thus "XHR" -- "XMLHttpRequest" -- kind of stuck as a dev tools moniker.  At one point, they were also called "AJAX" requests (Asynchronous JavaScript and XML) to try and capture it wasn't just XML anymore.  For the sake of this lab, and probably in most situations, it's fair to conceptualize these as "async" requests.  The "asynchronous" dimension of them is that they happened _after_ the original request for HTML had completed, and now we're in the browser engine land of figuring what _else_ to do.  This is glossinig over some technicalities, but that's the gist.
+Back in the day, most of these requests were to URLs that would return XML and thus "XHR" -- "XMLHttpRequest" -- kind of stuck as a dev tools moniker.  At one point, they were also called "AJAX" requests (Asynchronous JavaScript and XML) to try and capture it wasn't just XML anymore.  For the sake of this lab, and probably in most situations, it's fair to conceptualize these as "async" requests.  The "asynchronous" dimension of them is that they happened _after_ the original request for HTML had completed, and now we're in the browser engine land of figuring what _else_ to do.  This is glossing over some technicalities, but that's the gist.
 
 When we filtered to only these, our "featured" request to URL `https://minternet-science.exe.xyz/api/featured` remained!  This is a _great_ clue that this page is "doing some Javascript work" beyond just retrieving and showing simple HTML.  As you get into web archiving, and are doing scoping and exploratory work, filtering to XHR requests on a page is a great way to get a sense for how "busy" the website is in terms of async requests.
 
@@ -154,17 +154,17 @@ Now, with the network tab open, start clicking "View Details" for various experi
 
 Let's switch gears a little and look at the "Elements" tab which shows us the _final_ rendered DOM and HTML the browser engine created.  With everything we learned from the "Network" tab in mind, looking at the DOM is a good reminder that experiencing a website is to experience a potentially ever changing entity.
 
-Let's navigate to our blogs site, `https://minternet-blogs.exe.xyz/`, and click the "Emements" tab:
+Let's navigate to our blogs site, `https://minternet-blogs.exe.xyz/`, and click the "Elements" tab:
 
 ![elements-tab.png](elements-tab.png)
 
-I'm tempted to refer to this as "looking at the HTML", and that's not totally inaccurate, but referring to this as the "DOM" might be more accurate.  The elemnts tabs is showing us HTML, but it's HTML _as prepared and ever-changing_ by the browser engine.  For some sites, and we'll see this in a moment, this may change underfoot eve as we're looking at it.
+I'm tempted to refer to this as "looking at the HTML", and that's not totally inaccurate, but referring to this as the "DOM" might be more accurate.  The elements tab is showing us HTML, but it's HTML _as prepared and ever-changing_ by the browser engine.  For some sites, and we'll see this in a moment, this may change underfoot even as we're looking at it.
 
 First, try expanding the `<head>` element which reveals what the creators of this page thought prudent to include in this section:
 
 ![blogs-head.png](blogs-head.png)
 
-For web archiving, this `<head>` section is a common place to look for metadata that can be programatically extracted.  Elements like `<title>` are extremely common, as are metadata information in formats like:
+For web archiving, this `<head>` section is a common place to look for metadata that can be programmatically extracted.  Elements like `<title>` are extremely common, as are metadata information in formats like:
 
 - Dublin Core
 - [schema.org microdata](https://schema.org/docs/gs.html)
@@ -206,7 +206,7 @@ Opening the network tab for whatever URL you're currently on,
 
 ![spa-network.png](spa-network.png)
 
-Now, start clicking those buttons in the website just like before.  What do you notice in the network tab?  Nothing!  This is consistent with a lot of modern websites.  One first load, they load a bunch of content and javascript, then as you navigate around in the page it _looks_ like you are going to websites, but it's just manipulating the URL bar.  In reality, there are no requests to new pages or any network requests at all.  This can be very problematic for a crawler.
+Now, start clicking those buttons in the website just like before.  What do you notice in the network tab?  Nothing!  This is consistent with a lot of modern websites.  On first load, they load a bunch of content and javascript, then as you navigate around in the page it _looks_ like you are going to websites, but it's just manipulating the URL bar.  In reality, there are no requests to new pages or any network requests at all.  This can be very problematic for a crawler.
 
 We won't fully solve this right now, but what would this look like in a WARC file?  Would a crawler have followed these links?  Let's right-click the "Gallery" button and select inspect, which will zoom us back to the "Elements" tab:
 
@@ -240,7 +240,7 @@ The console is a place to interactively run Javascript code!  It's an incredibly
 To demonstrate that it runs javascript code, we can try a classic.  Paste the following into the command prompt and hit enter:
 
 ```javascript
-alert("Hello world! I was triggered from the console.  Web archiving is the bee's kness.");
+alert("Hello world! I was triggered from the console.  Web archiving is the bee's knees.");
 ```
 
 ![alert-hello-world.png](alert-hello-world.png)
@@ -271,12 +271,85 @@ Lo and behold, it has navigated the website to the Gallery content!  This is a l
 
 With all this DevTool-ing available to us now, how could we QA an actual archived website?  what does it look like when applied to replayed, captured content?
 
-The answer is it will vary depending on the crawler + replay approach, but often helpful information one way or another!  Let's try looking at a crawl of the Minternet via Archive-It.
+The answer is that it will vary depending on the crawler + replay approach, but often helpful information one way or another!  Let's try looking at a crawl of the Minternet via Archive-It.
 
-With your dev tools open, open the "Network" tab, clear the contents, and navigate to `https://wayback.archive-it.org/30907/20260110184810/https://minternet-science.exe.xyz/`.  What do you notice?  One of the first things that jumps out is a red line in the network tab for our familiar "featured" asset:
+With your dev tools open, open the "Network" tab, clear the contents, and navigate to `https://wayback.archive-it.org/30907/20260110184810/https://minternet-science.exe.xyz/`.  What do you notice?
+
+One of the first things that jumps out is a red line in the network tab for our familiar "featured" asset:
 
 ![ait-science-network.png](ait-science-network.png)
 
+If we click on this row, we see the actual URL that was attempted: 
+
+```text
+https://wayback.archive-it.org/30907/20260110184810/https://minternet-science.exe.xyz/api/featured
+```
+
+Interesting!  If you recall from earlier, we know the original URL was `https://minternet-science.exe.xyz/api/featured`, and we can see that embedded in this URL.  This is fundamental to how Wayback playback works:
+
+1. The HTML of websites is captured, with the original outbound links embedded in the HTML and/or Javascript
+2. When we replay it, a library like [`wombat.js`](https://github.com/webrecorder/wombat) is used to **rewrite** URLs on the fly inside the replayed page.
+
+So instead of an async request to `https://minternet-science.exe.xyz/api/featured`, `wombat.js` has rewritten this to `https://wayback.archive-it.org/30907/20260110184810/https://minternet-science.exe.xyz/api/featured`, which is basically `<collection>/<original_url>`.  There are edge cases to this simplistic explanation, and complexity on how `wombat.js` works, but this is the main idea.
+
+As we use DevTools on archived sites, observing URLs that are getting requested, we see this rewriting everywhere.  
+
+In this scenario, it looks as though the crawl did NOT capture this site, and we see the effect in the website:
+
+![missing-featured-effect.png](missing-featured-effect.png)
+
+Let's see if we can use DevTools and do some real deep digging.
+
+### 6- Understanding how replays pull from different crawls
+
+In a browser with or without dev tools open, navigate to `https://wayback.archive-it.org/30907/*/https://minternet-wowser.exe.xyz/app/gallery`.  This screen shows two captures for this specific URL within the collection:
+
+![gallery-captures.png](gallery-captures.png)
+
+It's hard to capture in a screenshot, but if you hover over the links you'll see these two URLs:
+
+```text
+15:55:05 --> https://wayback.archive-it.org/30907/20260110155505/https://minternet-wowser.exe.xyz/app/gallery
+18:48:51 --> https://wayback.archive-it.org/30907/20260110184851/https://minternet-wowser.exe.xyz/app/gallery
+```
+
+It's not obvious or even conventional across all web archives, but there are two bits of information we can extract from this:
+
+- `30907` --> collection identifier
+- `20260110155505` and `20260110184851` --> two distinct captures, at two different times
+
+Why do we care about this?  Back to dev tools!  
+
+With dev tools open, clear the network tab, then open this page `https://wayback.archive-it.org/30907/20260110184835/https://minternet-wowser.exe.xyz/app/gallery`.  Note the `20260110184835` crawl identifier in the URL.  This is not one of the ones we saw earlier.
+
+Now look at the URL, you should be seeing `https://wayback.archive-it.org/30907/20260110184851/https://minternet-wowser.exe.xyz/app/gallery` which is the `20260110184851` crawl identifier we _did_ see earlier.
+
+Next, click the "Doc" filter and look for the _two_ network requests for "gallery" in the network tab:
+
+![two-gallery-doc.png](two-gallery-doc.png)
+
+If we click on the first, we see the URL `https://wayback.archive-it.org/30907/20260110184835/https://minternet-wowser.exe.xyz/app/gallery` with a `302` redirect status.  In the Response Headers, you'll see the header `Location = https://wayback.archive-it.org/30907/20260110184851/https://minternet-wowser.exe.xyz/app/gallery` set in the response.  This tells the browser to redirect to this URL, which is the _closest crawl time_ that it can find a capture for this URL.
+
+This is really not the greatest example, but it starts to _hint_ at how the Wayback machine will often very quietly redirect to crawls that are the nearest timestamp to the capture time we started with.  Think back to the concept of "temporal coherence" from lecture.  As we navigate captured content, using DevTools, we can analyze the URLs for websites and loaded assets to see what crawls they originated from.  More often than you might expect, we are bouncing between different capture dates, sometimes even within a single website.
+
+We can see this a bit more cleanly and simply in the recipes page for an image.  If you navigate to the page `https://wayback.archive-it.org/30907/20260110184804/https://minternet-recipes.exe.xyz/`, with a little filtering and clicking around you can confirm that we are pulling in the image from a different crawl than what generated the HTML of the page!
+
+![pancake-redirect.png](pancake-redirect.png)
+
+We can see the main URL of the page is coming from crawl `20260110184804`.  But the first attempt for the `pancake.svg` file gets a `302` redirect, pointing to the crawl `20260110184814`.  To _really_ confirm our understanding, we can look in the Wayback for captures of this specific `pancake.svg` URL:
+
+![recent-pancake.png](recent-pancake.png)
+
+The end of the URL `184814` is referring to the `18:48:14` timestamp.
+
+This is a very deep dive ™️, likely not something you'd do in day-to-day web archiving or QA.  But it helps to demonstrate how instrumental dev tools can be in tracking down hard to explain bugs or irregularities in a crawl.  We have shown that for a capture of the recipes via crawl `20260110184804`, we are actually seeing images from crawl `20260110184814`!  
+
 ## Reflection Prompts
 
-Coming soon...
+1- Have you used developer tools in Chrome or other browsers before?  if so, was this different than your previous experience?
+
+2- What are some other uses of dev tools for QA-ing web archives captures that were not covered in this walkthrough?
+
+3- Try turning on developer tools for some websites you normally visit.  Do you see anything unusual or noteworthy?  
+
+4- Do you think you'll use dev tools for your own final project web archiving work?  if so, what for?  if not, why not?
