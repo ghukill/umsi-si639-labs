@@ -4,7 +4,7 @@
 
 ### Heritrix
 
-This lab is similar to others in that will be trying out a crawler.  The twist: we're doing a scavenger hunt.
+This lab is similar to others in that we will be trying out a crawler.  The twist: we're doing a scavenger hunt.
 
 For this lab, we'll be looking at the infamous [Heritrix](https://github.com/internetarchive/heritrix3) web crawler.  From the Github page,
 
@@ -27,7 +27,7 @@ Heritrix is a complex and interesting crawler, and we'll only scratch the surfac
   - this is opposed to `wget`, `browsertrix`, `pywb`, and other crawlers we've looked at where each invocation of the application is a "crawl" and then it's done
   - this is more similar to Archive-It which is kind of "always on", and can support parallel crawl
 - It does _not_ utilize a browser engine for crawls, but is significantly more advanced than something like `wget`
-- It is highly, _highly_ extensible and configurable; designed to scale into billions of pages and petabyte sized crawls (with the right hardward and configurations, of course 😎)
+- It is highly, _highly_ extensible and configurable; designed to scale into billions of pages and petabyte sized crawls (with the right hardware and configurations, of course 😎)
 - When crawls (Jobs) complete, the data is highly structured and ready to work with, kind of like Browsertrix, but it has no built-in mechanism to replay the captured content.
 - It produces WARC files!  It does _not_ produce CDX or WACZ assets.
 
@@ -127,7 +127,7 @@ Look for a section that looks like this:
 # This Properties map is specified in the Java 'property list' text format
 # http://java.sun.com/javase/6/docs/api/java/util/Properties.html#load%28java.io.Reader%29
 
-metadata.operatorContactUrl=https://ghukill.github.io/umsi-si639-labs/heritrix/kevin-backon-crawl
+metadata.operatorContactUrl=https://ghukill.github.io/umsi-si639-labs/heritrix/kevin-bacon-crawl
 metadata.jobName=YOUR-JOB-NAME-HERE
 metadata.description=YOUR-PRETTY-JOB-NAME-HERE
 
@@ -227,7 +227,7 @@ One of the most important "beans" (sections) in the config is `<bean id="scope" 
 </bean>
 ```
 
-This is a glimpse of the complexity of the Heritrix crawler, but also the high degree of configurability it provides.  These are a series of `ALLOW` / `REJECT` rules, looking at different criteria.  This is documented in Heritrix's [Crawl Scope documentation](<bean id="scope" class="org.archive.modules.deciderules.DecideRuleSequence">).
+This is a glimpse of the complexity of the Heritrix crawler, but also the high degree of configurability it provides.  These are a series of `ALLOW` / `REJECT` rules, looking at different criteria.  This is documented in Heritrix's Crawl Scope documentation.
 
 This clause says that we'll `ACCEPT` and URLs that have the following regular expression patterns (much like we've done for other crawlers!):
 ```xml
@@ -438,7 +438,7 @@ A single Job can hold multiple crawls.
 
 Lastly, where are our WARC files?  What if we want to "replay" some of this capturing?  In a somewhat manual, clunky way, we can access them through the GUI:
 
-1. CLick `Job Dir` button at the top
+1. Click `Job Dir` button at the top
 2. Click `latest/` folder
 3. Click `warcs/` folder
 4. Download your WARC

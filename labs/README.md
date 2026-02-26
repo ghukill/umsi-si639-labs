@@ -6,3 +6,4 @@
 - [Lab: Browsertrix-Crawler](browsertrix)
 - [Lab: `pywb` (record + replay)](pywb)
 - [Lab: Browser Dev Tools (Chrome)](browser_dev_tools)
+- [Lab: Heritrix](heritrix)
