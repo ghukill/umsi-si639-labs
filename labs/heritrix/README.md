@@ -33,7 +33,7 @@ Heritrix is a complex and interesting crawler, and we'll only scratch the surfac
 
 ### The Scavenger Hunt: 6 Degrees of Kevin Bacon
 
-![Kevin Bacon](https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Kevin_Bacon_The_Best_You_Can-55_%28cropped%29.jpg/500px-Kevin_Bacon_The_Best_You_Can-55_%28cropped%29.jpg)
+![Kevin Bacon](kb.webp)
 
 We will be recreating the famous [Six Degrees of Kevin Bacon](https://en.wikipedia.org/wiki/Six_Degrees_of_Kevin_Bacon) game, which rests on the assumption that,
 
@@ -295,11 +295,162 @@ I've highlighted a few key ones to keep an eye on:
 
 Congratulations, you have started a Heritrix crawl!
 
+### Analyzing Crawl (aka Looking for Kevin Bacon)
 
+Our goal is to capture the URL `https://dbpedia.org/page/Kevin_Bacon`, but how do we know if we've captured it?  We will use two approaches while the crawl is running:
 
+1. Look directly at the crawl log file
+2. Use a [Groovy](https://groovy-lang.org/) script that Heritrix can run against a live crawl
+
+#### 1- Look directly at the crawl log file
+
+For our active crawl, each URL request is logged in a file called `crawl.log`.  This lives in our Job directory, which Heritrix conveniently makes available to us via the GUI.
+
+First, from any page, click the "Job Dir" button in the top bar.  This will open a page that looks like this:
+
+![job_dir.png](job_dir.png)
+
+Look for the link called `latest/` which will open the directory of the current / latest / active crawl.  For us, it's likely the _only_ crawl, but this can be handy when you have dozens or hundreds of crawls.  This will present links that look like this:
+
+```text
+Listing of "/engine/job/gshukill-kevin-bacon-crawl/jobdir/latest"
+..
+actions-done/
+crawler-beans.cxml
+job.log
+job.log.lck
+logs/    <-----------------------
+surts.dump
+warcs/
+```
+
+Next, click `logs/`, which presents:
+
+```text
+Listing of "/engine/job/gshukill-kevin-bacon-crawl/jobdir/latest/logs"
+..
+alerts.log
+alerts.log.lck
+crawl.log  <-----------------
+crawl.log.lck
+frontier.recover.gz
+nonfatal-errors.log
+nonfatal-errors.log.lck
+progress-statistics.log
+progress-statistics.log.lck
+runtime-errors.log
+runtime-errors.log.lck
+uri-errors.log
+uri-errors.log.lck
+```
+
+Lastly, clicking on `crawl.log` will show the current logs of the crawl.  The following is a snippet of this, but it can be quite large!
+
+```text
+2026-02-26T02:54:17.532Z     1         54 dns:dbpedia.org P https://dbpedia.org/page/The_River_Wild text/dns #006 20260226025417003+14 sha1:6VEY6DBWNYI5QE4JAXHETR7HYE4ANWP6 - -
+2026-02-26T02:54:18.147Z   200        300 https://dbpedia.org/robots.txt P https://dbpedia.org/page/The_River_Wild text/plain #006 20260226025417550+590 sha1:5J3WK6ATEAM7QTE3EY5UAXGOWSKCZLO5 - -
+2026-02-26T02:54:19.360Z   200     102210 https://dbpedia.org/page/The_River_Wild - - text/html #006 20260226025418151+1039 sha1:BBJ3WZ4RJS3QHT4LN3HDWUCETAKXJKJ5 - 3t
+2026-02-26T02:54:19.601Z   303        153 http://dbpedia.org/robots.txt LP http://dbpedia.org/resource/The_River_Wild text/html #005 20260226025419276+319 sha1:KUPT5Q3I7BU7YDY4L6O3LVMY3HQOSF5I - -
+2026-02-26T02:54:19.929Z   303        153 http://dbpedia.org/resource/The_River_Wild L https://dbpedia.org/page/The_River_Wild text/html #005 20260226025419603+320 sha1:KUPT5Q3I7BU7YDY4L6O3LVMY3HQOSF5I - 2t
+2026-02-26T02:54:20.400Z   303          0 https://dbpedia.org/resource/The_River_Wild LR http://dbpedia.org/resource/The_River_Wild text/html #005 20260226025419931+465 sha1:3I42H3S6NNFQ2MSVX7XZKYAYSCX5QBYJ - -
+2026-02-26T02:54:20.873Z   303        153 http://dbpedia.org/page/The_River_Wild LRR https://dbpedia.org/resource/The_River_Wild text/html #010 20260226025420538+329 sha1:KUPT5Q3I7BU7YDY4L6O3LVMY3HQOSF5I - -
+2026-02-26T02:54:21.736Z   303        153 http://dbpedia.org/resource/Robert_Elswit L https://dbpedia.org/page/The_River_Wild text/html #005 20260226025420402+1328 sha1:KUPT5Q3I7BU7YDY4L6O3LVMY3HQOSF5I - -
+2026-02-26T02:54:22.195Z   303          0 https://dbpedia.org/resource/Robert_Elswit LR http://dbpedia.org/resource/Robert_Elswit text/html #005 20260226025421738+450 sha1:3I42H3S6NNFQ2MSVX7XZKYAYSCX5QBYJ - -
+2026-02-26T02:54:22.523Z   303        153 http://dbpedia.org/resource/Curtis_Hanson L https://dbpedia.org/page/The_River_Wild text/html #005 20260226025422198+317 sha1:KUPT5Q3I7BU7YDY4L6O3LVMY3HQOSF5I - -
+2026-02-26T02:54:22.626Z   303        153 http://dbpedia.org/page/Robert_Elswit LRR https://dbpedia.org/resource/Robert_Elswit text/html #008 20260226025422306+315 sha1:KUPT5Q3I7BU7YDY4L6O3LVMY3HQOSF5I - -
+2026-02-26T02:54:22.933Z   303          0 https://dbpedia.org/resource/Curtis_Hanson LR http://dbpedia.org/resource/Curtis_Hanson text/html #005 20260226025422524+406 sha1:3I42H3S6NNFQ2MSVX7XZKYAYSCX5QBYJ - -
+2026-02-26T02:54:23.270Z   303        153 http://dbpedia.org/resource/Universal_Pictures L https://dbpedia.org/page/The_River_Wild text/html #005 20260226025422934+329 sha1:KUPT5Q3I7BU7YDY4L6O3LVMY3HQOSF5I - -
+2026-02-26T02:54:23.732Z   303          0 https://dbpedia.org/resource/Universal_Pictures LR http://dbpedia.org/resource/Universal_Pictures text/html #005 20260226025423272+454 sha1:3I42H3S6NNFQ2MSVX7XZKYAYSCX5QBYJ - -
+2026-02-26T02:54:24.041Z   303        153 http://dbpedia.org/resource/David_Brenner_(film_editor) L https://dbpedia.org/page/The_River_Wild text/html #005 20260226025423735+304 sha1:KUPT5Q3I7BU7YDY4L6O3LVMY3HQOSF5I - -
+2026-02-26T02:54:24.109Z   200     153359 https://dbpedia.org/page/Robert_Elswit LRRR http://dbpedia.org/page/Robert_Elswit text/html #008 20260226025422628+1383 sha1:6ID5WMWZLX3W77MWL3FD3JF2HNTEPRQ7 - -
+```
+
+The format is roughly `<TIMESTAMP> <HTTP CODE> <BYTES> <NEW URL> <REASON> <FROM URL> ...`.
+
+For our Six Degrees of Kevin Bacon game, we would consider finding `https://dbpedia.org/page/Kevin_Bacon` _anywhere_ in this log file as success. That would mean the crawl had captued that page.
+
+For a simple approach, this would work: reload the page at your leisure and get updated URLs crawled.
+
+But there is another way...
+
+#### Use a Groovy Script
+
+This is about as deep into the technical weeds as we'll get in this lab.  
+
+For a running or paused crawl, Heritrix allows you to run Groovy language scripts against the crawl assets.  This script has access to the configuration, logs, crawled content, etc.  Imagine you could write python or javascript to analyze a crawl while it's running, with API access to the machinery that's performing the crawl.  That's what this is!
+
+Disclaimer: I am _not_ a Groovy expert, but was able to cobble together a script that would loop through the logs and look for `"Kevin_Bacon"` or `"kevin bacon"` somewhere in the logs.  If found, this means we've done it!  
+
+To run a script, make sure you're back at the Job root page, then look for and click the "Scripting Console" button at the top.
+
+This will open an editor that looks like this:
+
+![script_console.png](script_console.png)
+
+First, for the script language selector, select "Groovy".
+
+Second, paste the following code into the box:
+
+```text
+def logFile = job.crawlController.loggerModule.crawlLogPath.file
+def found = false
+logFile.eachLine { line ->
+    if (line.toLowerCase().contains("kevin_bacon") || line.toLowerCase().contains("kevin%20bacon")) {
+        found = true
+    }
+}
+rawOut.println found ? "You found Kevin Bacon!" : "Haven't found Kevin Bacon yet..."
+```
+
+Lastly, click "Execute" to see if you've found Kevin Bacon yet.
+
+How does this work?
+
+- the variable `logFile` is created to point at our current `crawl.log` file (the same we were looking at earlier)
+- set `found = false`
+- loop through lines and look for `"Kevin_Bacon"` or `"kevin bacon"` strings in each row
+- if we find it, we win!  if not, we haven't won...yet.
+
+While fun for our game, what other uses of scripting could there be?  Many!  This provides a way to dynamically analyze the crawl, and even modify parameters.  We could add a seed while a crawl is running, analyze the crawl and report out to another system, extract select materials, change "politeness" crawl settings, etc.  In reality, this is one thing tha sets Heritrix apart, is this radical extensibility.  Instead of just a set-it-and-forget-it crawler, Heritrix is like a live programming environment that is conducting a crawl.  This console is an unrealistic way to do this work, where an API interface is more realistic.
+
+But if you chose a good seed -- hint: `https://dbpedia.org/page/Meryl_Streep`, which only takes about ~600 crawled URLs -- you should see a success message like this:
+
+![success.png](success.png)
+
+### Wrapping Up
+
+Suppose you've found Kevin Bacon, or maybe you're 12k URLs in starting from [John Candy](https://dbpedia.org/page/John_Candy) and still haven't found him (not that I'd know or anything), and you'd like to stop your crawl.
+
+From the main job page, you can do the following to stop your crawl with the main row of buttons:
+
+1. `Pause`: Pauses the crawl, but still loaded in memory
+2. `Terminate`: Stops the crawl, but still loaded in memory
+3. `Teardown`: Fully removes the job from memory
+
+If you wanted to try a _different_ seed you could start from the beginning:
+
+1. Modify the configuration XML, changing the seed
+2. Click `Build` --> `Launch` --> `Unpause` just like we did in the beginning
+
+A single Job can hold multiple crawls.
+
+#### Accessing WARC Files
+
+Lastly, where are our WARC files?  What if we want to "replay" some of this capturing?  In a somewhat manual, clunky way, we can access them through the GUI:
+
+1. CLick `Job Dir` button at the top
+2. Click `latest/` folder
+3. Click `warcs/` folder
+4. Download your WARC
+
+This WARC should work in any platform that will replay them, e.g. [https://replayweb.page/](https://replayweb.page/).
 
 ## Reflection Prompts
 
-1- 
+1- Suppose we use a seed like `https://dbpedia.org/page/Meryl_Streep`, let the crawl get to 600-700 captured URLs, and we conclude that we "found" Kevin Bacon by crawling `https://dbpedia.org/page/Kevin_Bacon`.  If we are confident our crawl configurations setting worked and each page is less than 6 hops from our original seed, how did we collection 600 ~URLs!?
 
-2- 
+Said another way, what is the relationship of hops to total URLs crawled?
+
+2- Given a lab like this can only scratch the surface of a complex tool like Heritrix, what significant features stand out?  what things remind you of other crawlers we've looked at?  what is different?
+
+3- Archive-It uses Heritrix for crawling (default option, though other options like Brozzler exist).  Do you see parallels between the data model of Heritrix (jobs, seeds, configurations) and Archive-It (collections, crawls, seeds)?  Do you think one influenced the other?  Is this "the only" data model that could work for a web archiving tool or service?
