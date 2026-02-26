@@ -67,9 +67,7 @@ Game on!
 
 ### Logging into Heritrix
 
-For this lab, we will use an instance of Heritrix that is already running for this evening's lab.  You can find the instance here: [https://TODO_HOST:8443/](https://TODO_HOST:8443/).
-
-The username / password is: `si639` / `si639`.  
+For this lab, we will use an instance of Heritrix that is already running for this evening's lab.  You can find the instance here: [https://68.183.144.130:8443/](https://68.183.144.130:8443/).   The username and password will be shared in class.
 
 Note that when accessing this page, your browser may warn you that the `https://` page is not secure.  That's okay, just click through and accept this risk.  This is very temporary instance of Heritrix.  Normally, this would be productionalized with all kinds of infrastructure around it.
 
@@ -91,7 +89,7 @@ iipc/heritrix
 
 You should now be able to access Heritrix via the following URL: [https://localhost:8443](https://localhost:8443).
 
-Most all of the instructions will remain the same, just be careful to swap out `localhost:8443` for any URLs that may have the shared class instance of `TODO_HOST:8443`.
+Most all of the instructions will remain the same, just be careful to swap out `localhost:8443` for any URLs that may have the shared class instance of `68.183.144.130:8443`.
 
 ### Creating a new Job
 
