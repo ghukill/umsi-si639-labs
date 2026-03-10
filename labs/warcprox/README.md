@@ -38,7 +38,7 @@ We can route virtually any network traffic through a proxy, and `warcprox` is no
 
 This is why we'll use a dedicated, proxied Chromium browser so only _that_ network traffic is routed through `warcprox` for the lab.  We don't need to archive your slack messages, text messages, and email traffic captured as well 😉.
 
-`warcprox` is used by the Internet Archiev for it's [brozzler crawler](https://github.com/internetarchive/brozzler), and likely other web archiving software and architectures.  It's a pattern that was once understood and internalized, you'll start seeing it everywhere!
+`warcprox` is used by the Internet Archive for its [brozzler crawler](https://github.com/internetarchive/brozzler), and likely other web archiving software and architectures.  It's a pattern that, once understood and internalized, you'll start seeing it everywhere!
 
 ## Instructions
 
@@ -129,7 +129,7 @@ That's it!  You should see some output like the following:
 2026-03-10 15:27:09,248 10128 INFO StatsProcessor(tid=n/a) warcprox.stats.StatsProcessor._startup(stats.py:120) created table buckets_of_stats in ./warcprox.sqlite
 ```
 
-A couple of things additional things happened in the folder where it was launched:
+A couple of additional things happened in the folder where it was launched:
 
 ```text
 .
@@ -138,9 +138,9 @@ A couple of things additional things happened in the folder where it was launche
 └── warcprox.sqlite
 ```
 
-The two files `Grahams-MBP-2.localdomain-warcprox-ca` and `Grahams-MBP-2.localdomain-warcprox-ca.pem` (name is related to your machine) are self-signed HTTPS certificates.  For advanced and production contexts that use `warcprox`, it's possible to use these certifcates to help the browser or crawler allow this Man-in-the-Middle proxy situation.  As we'll see in this lab, browsers are generally clever enough to detect it and make a fuss.  
+The two files `Grahams-MBP-2.localdomain-warcprox-ca` and `Grahams-MBP-2.localdomain-warcprox-ca.pem` (name is related to your machine) are self-signed HTTPS certificates.  For advanced and production contexts that use `warcprox`, it's possible to use these certificates to help the browser or crawler allow this Man-in-the-Middle proxy situation.  As we'll see in this lab, browsers are generally clever enough to detect it and make a fuss.  
 
-For this lab we will NOT utilize these certifactes, but this is `warcprox` acknowledging that it's quite common to.
+For this lab we will NOT utilize these certificates, but this is `warcprox` acknowledging that it's quite common to.
 
 Lastly, there is a SQLite database started.  This is used by `warcprox` to remember and deduplicate content it's capturing.  Again, we won't dig into this for the lab, but good to know why it's there.
 
@@ -250,7 +250,7 @@ https://minternet.exe.xyz/
 
 It's our old friend, Minternet!  The most boring of websites.
 
-Before we get into new browsing activity, jump back to your `warcprox` instance and confirm there is activity.  It's probably a _lot_ of erros that look similar to:
+Before we get into new browsing activity, jump back to your `warcprox` instance and confirm there is activity.  It's probably a _lot_ of errors that look similar to:
 
 ```text
 ...
@@ -271,7 +271,7 @@ You may notice quite a few little things as you do:
 
 - it feels a bit slower, sluggish
 - the viewport may not change size even though you resize the browser window
-- some content looks a bit differnet or incomplete
+- some content looks a bit different or incomplete
 
 This is a fully functioning web browser engine, but it's not quite like your normal daily driver browser.  It's missing plugins, lots of performance enhancements, network traffic is slow given the proxy in the middle, etc.
 
@@ -281,7 +281,7 @@ Now that we're [Chrome DevTool experts](../browser_dev_tools/README.md), a fun t
 Via: 1.1 warcprox
 ```
 
-This single, quite line in the response headers is telling a big tale: this network reqeuest (basically all of them) are going through the `warcprox` instance we have running.  It's a nice confirmation that things are working.
+This single, quiet line in the response headers is telling a big tale: this network request (basically all of them) are going through the `warcprox` instance we have running.  It's a nice confirmation that things are working.
 
 Try browsing simple sites you know well, sites with complex content, whatever you think might be interesting to try replaying later.  If you're interested, you could even try logging into a site -- e.g. Github, your email, etc. -- and capture some content that is otherwise not public.  This is relatively safe, as the WARC file capture lives only on your machine.
 
@@ -303,7 +303,7 @@ Next, find your terminal window that is running `warcprox` and perform `Ctrl + c
 2026-03-10 15:54:48,103 11601 INFO RunningStats(tid=n/a) warcprox.BasePostfetchProcessor._run(__init__.py:141) <ListenerPostfetchProcessor(RunningStats(tid=n/a), started 6287618048)> shutting down
 ```
 
-Once shutdown, you should see a new `warc/` directory, likely only with 1-2 WARCs given the amount of browsing we performed.  There is also additional certifactes (`.pem` files) we acquired during the crawl; again, these can be ignored for now.
+Once shutdown, you should see a new `warc/` directory, likely only with 1-2 WARCs given the amount of browsing we performed.  There is also additional certificates (`.pem` files) we acquired during the crawl; again, these can be ignored for now.
 
 ```text
 .
@@ -326,7 +326,7 @@ Once shutdown, you should see a new `warc/` directory, likely only with 1-2 WARC
 
 A bit of commentary on the WARC(s) files.  That's all there is.  End of commentary.
 
-Unlike other crawlers like `wget`, `browsertrix`, `pywb`, etc., we don't have many other assets that accompany the WARC files.  We have no WACZ files, no CDX/J indexes, nothing!  There is considerably complexity in `warcprox` for capturing network traffic and writing WARC files, but the final product is conceptually simple: WARC files for all request/response network traffic that was routed through it.  This is why you often see `warcprox` paired with other software like `brozzler`, `pywb`, etc., that provide more of the web archiving niceities we are accustomed to like collections, metadata, indexes, etc.
+Unlike other crawlers like `wget`, `browsertrix`, `pywb`, etc., we don't have many other assets that accompany the WARC files.  We have no WACZ files, no CDX/J indexes, nothing!  There is considerable complexity in `warcprox` for capturing network traffic and writing WARC files, but the final product is conceptually simple: WARC files for all request/response network traffic that was routed through it.  This is why you often see `warcprox` paired with other software like `brozzler`, `pywb`, etc., that provide more of the web archiving niceties we are accustomed to like collections, metadata, indexes, etc.
 
 That said, those WARC files are the real treasure!  Let's take a look.
 
@@ -355,7 +355,7 @@ Clicking on that, I get a replay of the captured content:
 
 Success!  It does (and should) look pretty good.  Thinking back to our various discussions about crawler architectures, the content in the WARC file was the result of a **browser engine** (Chromium) so we get fully rendered pages, with javascript executed, CSS downloaded, etc.  
 
-Unsurprisingly, clicking on any link that you did not visit your self in the Chromium browser while capturing content with `warcprox` will not work.
+Unsurprisingly, clicking on any link that you did not visit yourself in the Chromium browser while capturing content with `warcprox` will not work.
 
 Congratulations, you have captured web content using `warcprox` + a Chromium browser engine 🎉.
 
@@ -413,9 +413,9 @@ select * from dedup limit 3;
 
 The `key` column is like a fingerprint, or a hash, of the network request + response.  For our second row, you can see `minternet.exe.xyz` in there.
 
-Every time response comes in, `warcprox` creates a `sha1` hash of the response, and checks this `dedup` table.  If the `key` does not exist, a new row is added and the response is written to the WARC file.  But if the `key` _exists_, this means we've recieved this exact content before from this precise URL.  Instead of re-writing the response bytes to the WARC file, `warcprox` can just say, "For this request, see WARC record `abc123`."  This is _very_ common in web archiving capture technology.  For a given crawl, it's possible you may retrieve the same CSS, Javascript, images, or HTML bytes dozens, hundreds, thousands of time.  By deduplicating during capture, you dramatically cut down on the bytes saved.
+Every time a response comes in, `warcprox` creates a `sha1` hash of the response, and checks this `dedup` table.  If the `key` does not exist, a new row is added and the response is written to the WARC file.  But if the `key` _exists_, this means we've received this exact content before from this precise URL.  Instead of re-writing the response bytes to the WARC file, `warcprox` can just say, "For this request, see WARC record `abc123`."  This is _very_ common in web archiving capture technology.  For a given crawl, it's possible you may retrieve the same CSS, Javascript, images, or HTML bytes dozens, hundreds, thousands of times.  By deduplicating during capture, you dramatically cut down on the bytes saved.
 
-But think back a few weeks ago when we talked about ["Temporal Incoherence"](Temporal Incoherence); this is one possible vector from which that is introduced into a web archive.  `warcprox` has decided, "I've seen this content before, let's just reuse a previous capture."  While a pragmatic way to deduplicate data, there are risks here for introducing data from a previous time / crawl that may not match the reality of the page during capture.  It's subtle, but this is an area those kind of mismatches can creep in.
+But think back a few weeks ago when we talked about ["Temporal Incoherence"](https://ws-dl.blogspot.com/2015/12/2015-12-08-evaluating-temporal.html); this is one possible vector from which that is introduced into a web archive.  `warcprox` has decided, "I've seen this content before, let's just reuse a previous capture."  While a pragmatic way to deduplicate data, there are risks here for introducing data from a previous time / crawl that may not match the reality of the page during capture.  It's subtle, but this is an area those kind of mismatches can creep in.
 
 More on `warcprox`'s deduplication here: [https://github.com/internetarchive/warcprox?tab=readme-ov-file#deduplication](https://github.com/internetarchive/warcprox?tab=readme-ov-file#deduplication).
 
@@ -456,9 +456,9 @@ Imagine a scenario like this:
 
 - single `warcprox` instance running at `https://my-archive.org/warcprox`
 - crawlers like `wget`, `browsertrix`, boutique human crawls with `Chrome`, etc, all proxying their network traffic through that single `https://my-archive.org/warcprox` instance
-- each crawler is sending special headers telling `warcprox` how to organize (bucket) it's traffic
+- each crawler is sending special headers telling `warcprox` how to organize (bucket) its traffic
 
-The end result are WARC files explicitly named and organized based on the crawler that routed its traffic through `warcprox`.  It's an elegant and poweful way to scale up web archiving activities!
+The end result are WARC files explicitly named and organized based on the crawler that routed its traffic through `warcprox`.  It's an elegant and powerful way to scale up web archiving activities!
 
 More on the special request header here: [https://github.com/internetarchive/warcprox/blob/master/api.rst#warcprox-meta-http-request-header](https://github.com/internetarchive/warcprox/blob/master/api.rst#warcprox-meta-http-request-header).
 
