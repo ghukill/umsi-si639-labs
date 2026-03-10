@@ -5,6 +5,7 @@ requires-python = ">=3.12,<3.14"
 dependencies = [
     "ipython>=9.8.0",
     "nabit>=0.1.2",
+    "playwright>=1.58.0",
     "pywb>=2.9.1",
     "ruff>=0.15.2",
     "wacz>=0.5.0",
