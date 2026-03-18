@@ -12,7 +12,4 @@ fi
 uv venv .venv --python 3.12
 uv sync
 
-# install Chromium browser for playwright
-playwright install chromium
-
 echo "UMSI-639 Labs DevContainer ready."
