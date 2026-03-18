@@ -3,11 +3,13 @@ name = "umsi-si639-labs"
 version = "0.1.0"
 requires-python = ">=3.12,<3.14"
 dependencies = [
+    "chardet<6",
     "ipython>=9.8.0",
     "nabit>=0.1.2",
     "playwright>=1.58.0",
     "pywb>=2.9.1",
     "ruff>=0.15.2",
+    "setuptools<81",
     "wacz>=0.5.0",
     "warcprox>=2.11.0",
 ]
