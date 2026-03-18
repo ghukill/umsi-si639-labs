@@ -8,3 +8,4 @@
 - [Lab: Browser Dev Tools (Chrome)](browser_dev_tools)
 - [Lab: Heritrix](heritrix)
 - [Lab: warcprox](warcprox)
+- [Lab: bag-nabit](bag_nabit)
