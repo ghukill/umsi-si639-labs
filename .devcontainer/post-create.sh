@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if ! command -v uv >/dev/null 2>&1; then
+  echo "uv not found; installing via astral.sh installer..."
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+  export PATH="$HOME/.local/bin:$PATH"
+fi
+
 uv venv .venv --python 3.12
 uv sync
 
