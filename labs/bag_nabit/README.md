@@ -2,25 +2,25 @@
 
 ## Overview
 
-`bag-nabit` is a tool built by the Harvard Library Innovation Laboratory ([website](https://lil.law.harvard.edu/), [Github](https://github.com/harvard-lil)).  A [blog post from inkdroid.org](https://inkdroid.org/2025/02/17/nabit/) sums up the functionality nicely,
+`bag-nabit` is a tool built by the Harvard Library Innovation Laboratory ([website](https://lil.law.harvard.edu/), [GitHub](https://github.com/harvard-lil)).  A [blog post from inkdroid.org](https://inkdroid.org/2025/02/17/nabit/) sums up the functionality nicely,
 
 > 1. downloads all the URLs to disk
 > 2. writes the dataset metadata to disk 
 > 3. packages up the data and metadata into a BagIt directory (RFC 8493) 
 > 4. records provenance about who did the work and when they did it 
 
-What does this mean exactly?  and why is it useful?
+What does this mean exactly?  And why is it useful?
 
 Let's imagine the following scenario.
 
-You are interested in downloading a text file from the Internet, a `.txt` file of the 1910 book "A Nonsense Anthology" from the Project Gutenberb website.  Let's assume that we want to preserve this file in such a way that other, future researchers can be sure the file was retrieved directly from a given URL, on a specific date, and was not modified during or after retrieval.  
+You are interested in downloading a text file from the Internet, a `.txt` file of the 1910 book "A Nonsense Anthology" from the Project Gutenberg website.  Let's assume that we want to preserve this file in such a way that other, future researchers can be sure the file was retrieved directly from a given URL, on a specific date, and was not modified during or after retrieval.  
 
 This may seem like a simple task:
 
 1. download the file
 2. prepare some kind of preservation package
 3. include metadata about when we downloaded it, who did, how we did it, etc., etc.
-4. include the text file we jsut downloaded
+4. include the text file we just downloaded
 
 Seems simple, right?  But what is stopping us -- nefariously or accidentally -- from:
 
@@ -29,7 +29,7 @@ Seems simple, right?  But what is stopping us -- nefariously or accidentally -- 
 3. claiming it was `2020-01-01`, but was actually today `2026-03-17`
 4. and so forth...
 
-Not much!  Depending on how we package it, metadata and data file metadata like created and modified dates, there is virtually nothing in our handmade preservation package that tethers it what actually occurred and how the package was made.
+Not much!  Depending on how we package it, metadata and data file metadata like created and modified dates, there is virtually nothing in our handmade preservation package that tethers it to what actually occurred and how the package was made.
 
 Enter `bag-nabit`!  As stated above, the purpose of this utility is to safeguard against the risks named above, and many more.  By using this tool to create a preservation object, we get the following:
 
@@ -42,17 +42,17 @@ Enter `bag-nabit`!  As stated above, the purpose of this utility is to safeguard
 
 This is a bit of a niche tool, but one can imagine how important a role this could play in establishing the provenance of digital objects downloaded from the Internet.
 
-Is this.... "web archiving"?  It depends on your definition!  The end goal is not a digital object that can support a replay experience of an internet browser -- what we often think of re: web archiving -- but we certainly preserving data / information from the web, and encoding enough information about the network interactiosn to replay the _authenticity_ of the data retrieved.  
+Is this.... "web archiving"?  It depends on your definition!  The end goal is not a digital object that can support a replay experience of an internet browser -- what we often think of re: web archiving -- but we are certainly preserving data / information from the web, and encoding enough information about the network interactions to replay the _authenticity_ of the data retrieved.  
 
-Let's take it for a spin and see what other similarities of differenes emerge.
+Let's take it for a spin and see what other similarities or differences emerge.
 
 ## Instructions
 
 ### Install Dependencies
 
-If not using the `umsi-si639-labs` GitHub CodeSpace -- [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/ghukill/umsi-si639-labs) -- make sure that `bag-nabit` is installed.  If you _are_ using CodeSpace, you can skip to the "Create Workspace" section.
+If not using the `umsi-si639-labs` GitHub Codespace -- [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/ghukill/umsi-si639-labs) -- make sure that `bag-nabit` is installed.  If you _are_ using GitHub Codespaces, you can skip to the "Create Workspace" section.
 
-As per usual, ensure that you have the SI639 labs github repository cloned and updated:
+As per usual, ensure that you have the SI639 labs GitHub repository cloned and updated:
 
 ```shell
 git clone https://github.com/ghukill/umsi-si639-labs
@@ -87,7 +87,7 @@ We're all set!
 
 To get things started, we'll use `nabit` to create a single bag for two files located online.
 
-Find two files you'd like to include in your bag, ideally simple, single files like a PDFs or an image file.  If you're not feeling creative, feel free to use the following two URLs:
+Find two files you'd like to include in your bag, ideally simple, single files like a PDF or an image file.  If you're not feeling creative, feel free to use the following two URLs:
 
 - A JPEG image from the 2000 AFSCME Convention: [https://wayne.contentdm.oclc.org/digital/download/collection/afscme/id/163/size/large](https://wayne.contentdm.oclc.org/digital/download/collection/afscme/id/163/size/large)
 - A text file of the 1910 book "A Nonsense Anthology": [https://www.gutenberg.org/cache/epub/9380/pg9380.txt](https://www.gutenberg.org/cache/epub/9380/pg9380.txt)
@@ -139,7 +139,7 @@ test-bag-1
 └── tagmanifest-sha256.txt
 ```
 
-Congratulations! 🎉  You have retrieved a couple of random files from the internet and packaged them up as a preservation ready object!  So what are these files?  Let's look at them one-by-one.
+Congratulations! 🎉  You have retrieved a couple of random files from the internet and packaged them up as a preservation-ready object!  So what are these files?  Let's look at them one by one.
 
 ```text
 test-bag-1/
@@ -270,7 +270,7 @@ There is a single pattern, repeated twice (two URLs):
 - a `WARC-Type: revisit` record
 - a `WARC-Type: request` record
 
-The name of the file gives us a clue about it's purpose: `headers.warc`.  This WARC file is designed to record metadata about the network requests made, but not necessarily capture the data.
+The name of the file gives us a clue about its purpose: `headers.warc`.  This WARC file is designed to record metadata about the network requests made, but not necessarily capture the data.
 
 The `WARC-Type: request` record makes sense: we want to record the exact network request we made to the server for the file we eventually downloaded and stored in the bag.  
 
@@ -317,16 +317,16 @@ The two rows for the data files -- `data/files/large.jpg` and `data/files/pg9380
 
 The other two are a bit more subtle:
 
-- `data/headers.warc`: this checksum confirms that our WARC file is also untouched / unchanged after its been added to the bag
+- `data/headers.warc`: this checksum confirms that our WARC file is also untouched / unchanged after it's been added to the bag
 - `data/signed-metadata.json`: similarly, this checksum ensures the metadata about the files is unchanged
 
-Big picture, if any of the bytes of any of those files were modified, when this bag is verified (we'll do this in a moment!) will fail validation.
+Big picture, if any bytes in any of those files are modified, this bag will fail validation when verified (we'll do this in a moment!).
 
 ```text
 └── tagmanifest-sha256.txt
 ```
 
-This file is optional in the BagIt specification, but `nabit` opts to create them.  It provides checksums for other files in the bag:
+This file is optional in the BagIt specification, but `nabit` opts to create it.  It provides checksums for other files in the bag:
 
 ```text
 542f6fd0691214b2b17295e356ccd41025e22f41e7ed8419fe92f3ff34b2871c  bag-info.txt
@@ -355,7 +355,7 @@ Package is valid
 
 We do get a couple of warnings that no signatures were found (more on this in a moment), but it's a "valid" bag in the sense it a) satisfies the BagIt specification, and b) the files all match their checksums.  
 
-Let's a do a test!  Try opening the text file at `data/files/pg9380.txt`, and changing just a couple of letters at the beginning.  For example I'm making this change in the first line:
+Let's do a test!  Try opening the text file at `data/files/pg9380.txt`, and changing just a couple of letters at the beginning.  For example I'm making this change in the first line:
 
 Original:
 ```text
@@ -393,12 +393,12 @@ Reading through `nabit`'s [Quickstart Documentation](https://github.com/harvard-
 - ability to "sign" the bag with an SSL `.pem` file ([more documentation](https://github.com/harvard-lil/bag-nabit?tab=readme-ov-file#key-management-create-and-sign-workflows))
 - ability to update the bag with more files using the `--amend` flag
 
-While the documentation states that `nabit` is not a "web crawler", there is a [documentation section](https://github.com/harvard-lil/bag-nabit?tab=readme-ov-file#collection-backends) that muses how it could be extended for other protocoles (e.g. FTP) or even architectures (e.g. a web crawler).
+While the documentation states that `nabit` is not a "web crawler", there is a [documentation section](https://github.com/harvard-lil/bag-nabit?tab=readme-ov-file#collection-backends) that muses how it could be extended for other protocols (e.g. FTP) or even architectures (e.g. a web crawler).
 
 ## Reflection Prompts
 
-1- What role does the file `headers.warc` play in a bag-nabit bag? 
+**1-** What role does the file `headers.warc` play in a bag-nabit bag? 
 
-2- What are some real world scenarios where this tool might be handy?  
+**2-** What are some real world scenarios where this tool might be handy?  
 
-3 (Bonus) - Do you think that data from a "normal" WARC file, created during the course of a crawl, could be used to retroactively make a BagIt preservation object for one or many distinct files?
+**3-** (Bonus) Do you think that data from a "normal" WARC file, created during the course of a crawl, could be used to retroactively make a BagIt preservation object for one or many distinct files?
