@@ -289,30 +289,116 @@ A quick explanation of the BagIt format from the specification:
 Let's look at the BagIt files individually.
 
 ```text
-├── bag-info.txt
-```
-
-This file contains metadata about the bag, like what software was used to create it and when.
-
-```text
 ├── bagit.txt
 ```
 
-This file contains technical information about the `bagit` software version used.
+This file contains technical information about the `bagit` software version used.  This file is required.
+
+```text
+├── bag-info.txt
+```
+
+This file contains metadata about the bag, like what software was used to create it and when.  This file is optional.
 
 ```text
 ├── manifest-sha256.txt
 ```
 
-TODO...............................
+This is one of the most important files in a BagIt archive and is required.  It contains checksums of the files in the Bag (e.g. MD5, SHA256, etc.).  Here are the contents of this file, which _should_ be the same for anyone that runs this lab with the same URLs from above (assuming the files haven't changed):
+
+```text
+02bcb467b8d90ab051dda669fd3ead4f5de393c562768e5ab2be9ac3675ba81e  data/files/large.jpg
+32da5aa1608526d8452f93cc1c24560de451c7f62937c4f0628bdcd6b2198cf5  data/files/pg9380.txt
+e4277b33eeb5d43519129b6956e30dfe69124065660c7d2ae8ec8245d540b646  data/signed-metadata.json
+ed6c2fdef881b39ba3befaf90fb4e33d8fd4c11632548ad3ca6937b41087ddb5  data/headers.warc
+```
+
+The two rows for the data files -- `data/files/large.jpg` and `data/files/pg9380.txt` -- are fairly straight-forward.  They are a checksum of the data files this bag is built around.  
+
+The other two are a bit more subtle:
+
+- `data/headers.warc`: this checksum confirms that our WARC file is also untouched / unchanged after its been added to the bag
+- `data/signed-metadata.json`: similarly, this checksum ensures the metadata about the files is unchanged
+
+Big picture, if any of the bytes of any of those files were modified, when this bag is verified (we'll do this in a moment!) will fail validation.
 
 ```text
 └── tagmanifest-sha256.txt
 ```
 
-TODO...............................
+This file is optional in the BagIt specification, but `nabit` opts to create them.  It provides checksums for other files in the bag:
 
+```text
+542f6fd0691214b2b17295e356ccd41025e22f41e7ed8419fe92f3ff34b2871c  bag-info.txt
+66c06401e14bbb0e67b4ee909702cb1b2528bb3abbdfe38a94879b6279f24c5c  manifest-sha256.txt
+e91f941be5973ff71f1dccbdd1a32d598881893a7f21be516aca743da38b1689  bagit.txt
+```
+
+### Validate our test bag
+
+Next, we'll use the `nabit` program to validate the bag we just created:
+
+```shell
+ nabit validate test-bag-1
+```
+
+The result should be success, looking like the following:
+
+```text
+Validating package at test-bag-1 ...
+SUCCESS: headers.warc found
+SUCCESS: bag format is valid
+WARNING: No signatures found
+WARNING: No timestamps found
+Package is valid
+```
+
+We do get a couple of warnings that no signatures were found (more on this in a moment), but it's a "valid" bag in the sense it a) satisfies the BagIt specification, and b) the files all match their checksums.  
+
+Let's a do a test!  Try opening the text file at `data/files/pg9380.txt`, and changing just a couple of letters at the beginning.  For example I'm making this change in the first line:
+
+Original:
+```text
+The Project Gutenberg eBook of A Nonsense Anthology
+```
+
+Changed:
+```text
+The Project Gutenberg eBook of A Nonsense Anthology - PICKLES!
+```
+
+Now, if we validate the bag a second time, we should see a failure:
+
+```shell
+nabit validate test-bag-1
+```
+
+```text
+Validating package at test-bag-1 ...
+SUCCESS: headers.warc found
+data/files/pg9380.txt sha256 validation failed: expected="32da5aa1608526d8452f93cc1c24560de451c7f62937c4f0628bdcd6b2198cf5" found="6443c006996f53afc4f7330acc0a247dba0f83f0e60dae7757f3693b6e7f2ca7"
+ERROR: bag format is invalid: Bag validation failed: data/files/pg9380.txt sha256 validation failed: expected="32da5aa1608526d8452f93cc1c24560de451c7f62937c4f0628bdcd6b2198cf5" found="6443c006996f53afc4f7330acc0a247dba0f83f0e60dae7757f3693b6e7f2ca7"
+WARNING: No signatures found
+WARNING: No timestamps found
+Error: Errors found in package
+```
+
+Looks like the checksums work!
+
+### Additional Features
+
+Reading through `nabit`'s [Quickstart Documentation](https://github.com/harvard-lil/bag-nabit?tab=readme-ov-file#quick-start) you can see some additional functionality:
+
+- ability to add metadata into the `bag-info.txt` file with `-i "<field>:<value>"`
+- ability to "sign" the bag with an SSL `.pem` file ([more documentation](https://github.com/harvard-lil/bag-nabit?tab=readme-ov-file#key-management-create-and-sign-workflows))
+- ability to update the bag with more files using the `--amend` flag
+
+While the documentation states that `nabit` is not a "web crawler", there is a [documentation section](https://github.com/harvard-lil/bag-nabit?tab=readme-ov-file#collection-backends) that muses how it could be extended for other protocoles (e.g. FTP) or even architectures (e.g. a web crawler).
 
 ## Reflection Prompts
 
-TODO...
+1- What role does the file `headers.warc` play in a bag-nabit bag? 
+
+2- What are some real world scenarios where this tool might be handy?  
+
+3 (Bonus) - Do you think that data from a "normal" WARC file, created during the course of a crawl, could be used to retroactively make a BagIt preservation object for one or many distinct files?
