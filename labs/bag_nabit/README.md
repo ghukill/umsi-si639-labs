@@ -65,6 +65,11 @@ Run command to update dependencies:
 uv sync
 ```
 
+Lastly, make sure to activate your `uv` python virtual environment!
+```shell
+source .venv/bin/activate
+```
+
 ### Create and Confirm Workspace
 
 Ensure that `nabit` is installed:
