@@ -2,7 +2,7 @@
 
 ## Overview
 
-Archive-It provides a handful of APIs to work with collections programatically:
+Archive-It provides a handful of APIs to work with collections programmatically:
 
 ![ait-apis.png](ait-apis.png)
 
@@ -75,7 +75,7 @@ We're all set!  We'll run any code from the **root** of the project.
 
 #### Partner API via a Browser
 
-First, login into the partner site at [https://partner.archive-it.org/](https://partner.archive-it.org/).
+First, log into the partner site at [https://partner.archive-it.org/](https://partner.archive-it.org/).
 
 Once logged in, any API URL routes that we visit in our browser will show us the results for an authenticated user.
 
@@ -532,7 +532,7 @@ And then start ipython and load that `.env` file:
 uv run --env-file .env ipython
 ```
 
-Both appraoches work!
+Both approaches work!
 
 
 Let's confirm our environment variables are set:
@@ -713,7 +713,7 @@ Neat!
 
 #### Opensearch API in python
 
-The browser interface is well and good, but if we want to use this data progrmatically, e.g. in python?   We would need to parse the XML and extract information.
+The browser interface is well and good, but if we want to use this data programmatically, e.g. in python?   We would need to parse the XML and extract information.
 
 Now is a good time to introduce some convenience python code that has been generated for this lab.  The idea is we can focus on the big picture mechanics of what we're doing without fighting syntax the whole time.
 
@@ -948,7 +948,7 @@ Hopefully, at this point, the gears are started to turn as to what kind of thing
 
 The next API we'll _briefly_ look at is the CDX Index API.  
 
-As we've touched on in class, CDX indexes are critical for efficiently working with and accessing indvidual URL captures in our WARC files.  They are, ostensibly, fully derivable from the WARC files themselves.
+As we've touched on in class, CDX indexes are critical for efficiently working with and accessing individual URL captures in our WARC files.  They are, ostensibly, fully derivable from the WARC files themselves.
 
 Let's look at a CDX API result in our browser first, for the collection + URL we just looked at, [https://wayback.archive-it.org/2950/timemap/cdx?url=http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1](https://wayback.archive-it.org/2950/timemap/cdx?url=http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1):
 
