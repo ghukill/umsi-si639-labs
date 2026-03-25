@@ -1,3 +1,15 @@
+"""labs.ait_apis.clients
+
+This module provides some python clients for interacting with Archive-It APIs.
+
+These are NOT production ready, nor are they potentially even well designed!  The goal
+here was relatively quick access to data from the APIs, to focus on what the data looks
+like versus the idiosyncrasies of each API endpoint.  Use at your own peril.
+
+The class/client `AITCollection` is a good entrypoint.  Opinionated to work with only a
+single AIT collection, the 4 APIs covered in this file and lab are composed onto this
+class.
+"""
 from functools import lru_cache
 import os
 import xml.etree.ElementTree as ET
@@ -111,7 +123,7 @@ class AITCDXClient:
         return records
 
 
-class AITWarcClient:
+class AITWASAPIClient:
     """https://support.archive-it.org/hc/en-us/articles/360015225051-How-to-find-and-download-your-WARC-files-with-WASAPI"""
 
     def __init__(self, session):
@@ -134,15 +146,15 @@ class AITCollection:
     def __init__(self, collection_id: int):
         self.collection_id = collection_id
 
-        self._partner = AITPartnerClient()
-        self._opensearch = AITOpensearchClient()
-        self._cdx = AITCDXClient()
-        self._warc = AITWarcClient(self._partner.session)
+        self.partner_client = AITPartnerClient()
+        self.opensearch_client = AITOpensearchClient()
+        self.cdx_client = AITCDXClient()
+        self.wasapi_client = AITWASAPIClient(self.partner_client.session)
 
         self.data = self._load_collection()
 
     def _load_collection(self) -> dict:
-        data = self._partner.get("collection", id=self.collection_id)[0]
+        data = self.partner_client.get("collection", id=self.collection_id)[0]
         print(f"Loaded collection: {data['name']}, state: {data['state']}")
         return data
 
@@ -152,12 +164,12 @@ class AITCollection:
         limit=20,
         offset=0,
     ):
-        return self._opensearch.search(
+        return self.opensearch_client.search(
             self.collection_id, query, limit=limit, offset=offset
         )
 
     def seeds(self):
-        return self._partner.get(
+        return self.partner_client.get(
             "seed",
             collection=self.collection_id,
             sort="created_date",
@@ -165,7 +177,7 @@ class AITCollection:
         )
 
     def crawls(self):
-        return self._partner.get(
+        return self.partner_client.get(
             "crawl_job",
             collection=self.collection_id,
             sort="original_start_date",
@@ -179,7 +191,7 @@ class AITCollection:
         return max(crawls, key=lambda c: c["original_start_date"])
 
     def crawl_report_hosts(self, crawl_id: int, offset=0, limit=1_000):
-        hosts = self._partner.get(
+        hosts = self.partner_client.get(
             f"reports/host/{crawl_id}",
             format="json",
             offset=offset,
@@ -188,7 +200,7 @@ class AITCollection:
         return {h["host"]: h for h in hosts}
 
     def crawl_report_seeds(self, crawl_id: int, offset=0, limit=1_000):
-        hosts = self._partner.get(
+        hosts = self.partner_client.get(
             f"reports/seed/{crawl_id}",
             format="json",
             offset=offset,
@@ -197,9 +209,9 @@ class AITCollection:
         return {h["seed"]: h for h in hosts}
 
     def cdx_for_url(self, url):
-        return self._cdx.get(self.collection_id, url)
+        return self.cdx_client.get(self.collection_id, url)
 
     def warcs(self, crawl_id: int | None = None) -> dict:
         if crawl_id:
-            return self._warc.get_crawl_warcs(crawl_id)
-        return self._warc.get_collection_warcs(self.collection_id)
+            return self.wasapi_client.get_crawl_warcs(crawl_id)
+        return self.wasapi_client.get_collection_warcs(self.collection_id)
