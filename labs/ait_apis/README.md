@@ -71,7 +71,9 @@ uv sync
 
 We're all set!  We'll run any code from the **root** of the project.
 
-### Use Partner API via a Browser
+### Partner API
+
+#### Partner API via a Browser
 
 First, login into the partner site at [https://partner.archive-it.org/](https://partner.archive-it.org/).
 
@@ -504,9 +506,9 @@ Neat!  It's the raw data that the front-end uses to generate host report graphs 
 
 Now, let's move into using python + HTTP requests to use this API in the way it was designed to be used.
 
-### Use Partner API via python + HTTP requests
+#### Partner API via python + HTTP requests
 
-#### Starting Ipython shell with username + password environment variables
+##### Starting Ipython shell with username + password environment variables
 
 For the next few parts of the lab we'll be working from an Ipython shell and copy/pasting code to execute.
 
@@ -544,7 +546,7 @@ print(os.getenv("AIT_USERNAME"))
 
 If that doesn't work, stop now!  All future work will assume these environment variables are set.
 
-#### Make API requests with `requests` library
+##### Make API requests with `requests` library
 
 To demonstrate to ourselves how this works, let's do a simple API request with the `requests` library:
 
@@ -580,9 +582,11 @@ session.get("https://partner.archive-it.org/api/seed?collection=30935").json()
 
 Noice!  So we've confirmed the Partner API works both in the browser and via python HTTP requests.  Let's move on to looking at the other APIs, and then we'll look at tying it all together.
 
-### Use Opensearch API
+### Opensearch API
 
 The Opensearch API allows for full-text searching of our collections.
+
+#### Opensearch API in the browser
 
 Let's first perform a request in the browser to get a quick feel for the response: [https://archive-it.org/search-master/opensearch?i=30935&q=alice](https://archive-it.org/search-master/opensearch?i=30935&q=alice).
 
@@ -706,5 +710,510 @@ So what are our takeaways from this API at this point?
 - results contain enough information to render a Wayback Machine instance for that capture
 
 Neat!
+
+#### Opensearch API in python
+
+The browser interface is well and good, but if we want to use this data progrmatically, e.g. in python?   We would need to parse the XML and extract information.
+
+Now is a good time to introduce some convenience python code that has been generated for this lab.  The idea is we can focus on the big picture mechanics of what we're doing without fighting syntax the whole time.
+
+There is a file called [clients.py](clients.py) in this repository with some code we'll touch on now and use more later.
+
+For the Opensearch API specifically, there is a class called `AITOpensearchClient`.  The following is a very quick example of using this class to perform a search and parse the results into a python friendly dictionary format:
+
+```python
+from labs.ait_apis.clients import AITOpensearchClient
+
+opensearch_client = AITOpensearchClient()
+
+opensearch_client.search(collection_id=2950, query="Seattle")
+"""
+{'total': 418,
+ 'offset': 0,
+ 'limit': 20,
+ 'items': [{'title': 'Occupy Seattle Live on USTREAM: Streaming the Occupy Seattle protest from my Samsung Galaxy S.',
+   'link': 'http://www.ustream.tv/channel/occupy-seattle-live',
+   'date': '20120124014651',
+   'description': 'Occupy <b>Seattle</b> Live on USTREAM: Streaming the Occupy <b>Seattle</b> protest from my Samsung Galaxy S.',
+   'score': '205.09383',
+   'site': 'www.ustream.tv',
+   'length': '44111',
+   'type': 'application/xhtml+xml',
+   'collection': '2950',
+   'wayback_link': 'https://wayback.archive-it.org/2950/20120124014651/http://www.ustream.tv/channel/occupy-seattle-live'},
+  {'title': 'Occupy Seattle May Day General Strike Callout | Facebook',
+   'link': 'http://www.facebook.com/events/171777899607237/k0n/L',
+   'date': '20120423050605',
+   'description': 'Going (441) Maybe (121) Invited (6,314) Export · Report Occupy <b>Seattle</b> May Day General Strike Callout Public Event · By Occupy <b>Seattle</b> Tuesday, May 1, 2012 9:00am Occupy <b>Seattle</b> General Assembly has passed',
+   'score': '91.76075',
+   'site': 'www.facebook.com',
+   'length': '47899',
+   'type': 'text/html',
+   'collection': '2950',
+   'wayback_link': 'https://wayback.archive-it.org/2950/20120423050605/http://www.facebook.com/events/171777899607237/k0n/L'},
+  {'title': 'occupy seattle | Tumblr',
+   'link': 'http://www.tumblr.com/tagged/occupy-seattle',
+   'date': '20120124024636',
+   'description': 'occupy <b>seattle</b> | Tumblr Javascript is required to view this site.',
+   'score': '89.68557',
+   'site': 'www.tumblr.com',
+   'length': '124775',
+   'type': 'application/xhtml+xml',
+   'collection': '2950',
+   'wayback_link': 'https://wayback.archive-it.org/2950/20120124024636/http://www.tumblr.com/tagged/occupy-seattle'},
+  {'title': 'Occupy Seattle | OccupyArrests',
+   'link': 'http://occupyarrests.wordpress.com/category/occupy-seattle/?like=1',
+   'date': '20120529034405',
+   'description': 'Occupy <b>Seattle</b> | OccupyArrests OccupyArrests Skip to content Twitter Facebook Donate Numbers Category Archives: Occupy <b>Seattle</b> November 16, 2011 For Shame: Hundreds Of Arrests Across the Country Today',
+   'score': '72.97875',
+   'site': 'occupyarrests.wordpress.com',
+   'length': '32583',
+   'type': 'text/html',
+   'collection': '2950',
+   'wayback_link': 'https://wayback.archive-it.org/2950/20120529034405/http://occupyarrests.wordpress.com/category/occupy-seattle/?like=1'},
+  {'title': 'WE ARE THE 99%',
+   'link': 'http://occupy-fresno.tumblr.com/tagged/Seattle-Police',
+   'date': '20120410040005',
+   'description': '# OWS # <b>Seattle</b> Police # police #occupywallstreet: To the Mayor of <b>Seattle</b> and SPD: Stop Harassing the Occupiers!',
+   'score': '64.73639',
+   'site': 'occupy-fresno.tumblr.com',
+   'length': '16988',
+   'type': 'text/html',
+   'collection': '2950',
+   'wayback_link': 'https://wayback.archive-it.org/2950/20120410040005/http://occupy-fresno.tumblr.com/tagged/Seattle-Police'},
+  {'title': '500 Students Walk Out of Seattle High School « occupyhighschooldotcom',
+   'link': 'http://occupyhighschool.com/2012/01/22/500-students-walk-out-of-seattle-high-school/',
+   'date': '20120724040535',
+   'description': 'and with <b>Seattle</b> Public Schools students tired of the constant cuts to our education.',
+   'score': '63.632656',
+   'site': 'occupyhighschool.com',
+   'length': '41495',
+   'type': 'application/xhtml+xml',
+   'collection': '2950',
+   'wayback_link': 'https://wayback.archive-it.org/2950/20120724040535/http://occupyhighschool.com/2012/01/22/500-students-walk-out-of-seattle-high-school/'},
+  {'title': 'Occupy Seattle Joins Wave of Building Occupations | OccupyWallSt.org',
+   'link': 'http://occupywallst.org/forum/occupy-seattle-joins-wave-of-building-occupations/',
+   'date': '20120322052814',
+   'description': '2 comments 9 hours ago by poltergist22 Occupy <b>Seattle</b> Joins Wave of Building Occupations Posted 3 months ago on Dec. 3, 2011, 10:43 a.m.',
+   'score': '62.0521',
+   'site': 'occupywallst.org',
+   'length': '125605',
+   'type': 'text/html',
+   'collection': '2950',
+   'wayback_link': 'https://wayback.archive-it.org/2950/20120322052814/http://occupywallst.org/forum/occupy-seattle-joins-wave-of-building-occupations/'},
+  {'title': 'West Coast Ports Shutdown « occupy california',
+   'link': 'http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1',
+   'date': '20120117014149',
+   'description': '<b>SEATTLE</b> , Washington — Hundreds gathered in Westlake Park around 1:30pm. As of 2:30pm, they’ve begun to march to the Port of <b>Seattle</b> . By around 3:15pm, a growing crowd has reached the port.',
+   'score': '56.488823',
+   'site': 'occupyca.wordpress.com',
+   'length': '45819',
+   'type': 'application/xhtml+xml',
+   'collection': '2950',
+   'wayback_link': 'https://wayback.archive-it.org/2950/20120117014149/http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1'},
+  {'title': 'Mark Taylor-Canfield',
+   'link': 'http://www.huffingtonpost.com/mark-taylorcanfield',
+   'date': '20120320032453',
+   'description': 'Although <b>Seattle</b> ...',
+   'score': '53.48966',
+   'site': 'www.huffingtonpost.com',
+   'length': '161661',
+   'type': 'application/xhtml+xml',
+   'collection': '2950',
+   'wayback_link': 'https://wayback.archive-it.org/2950/20120320032453/http://www.huffingtonpost.com/mark-taylorcanfield'},
+  {'title': '#OccupySeattle (@_OccupySeattle) on Twitter',
+   'link': 'http://twitter.com/_OccupySeattle',
+   'date': '20120612052819',
+   'description': 'That is the official twitter account of #OccupySeattle 2:47 AM Oct 4th, 2011 via web Name #OccupySeattle Location <b>Seattle</b> , Washington Web http://www.occupy...',
+   'score': '52.44716',
+   'site': 'twitter.com',
+   'length': '21034',
+   'type': 'application/xhtml+xml',
+   'collection': '2950',
+   'wayback_link': 'https://wayback.archive-it.org/2950/20120612052819/http://twitter.com/_OccupySeattle'},
+  {'title': 'Unity, Solidarity, and Debate | OccupySeattle',
+   'link': 'http://www.occupyseattle.org/node/408',
+   'date': '20120124024850',
+   'description': 'The sooner that the participants of Occupy <b>Seattle</b> understand this and reject the influence exercised over Occupy <b>Seattle</b> by a handful of opportunist the better.',
+   'score': '50.94638',
+   'site': 'www.occupyseattle.org',
+   'length': '48483',
+   'type': 'application/xhtml+xml',
+   'collection': '2950',
+   'wayback_link': 'https://wayback.archive-it.org/2950/20120124024850/http://www.occupyseattle.org/node/408'},
+  {'title': 'Moviefone The Huffington Post',
+   'link': 'http://news.moviefone.com/',
+   'date': '20120626041535',
+   'description': 'long, illustrious career starting as an actor in the TV role of "Meathead" in "All in the Family" and moving on to directing classics such as "When Harry Met Sally," "A Few Good Men," and "Sleepless in <b>Seattle</b>',
+   'score': '50.417694',
+   'site': 'news.moviefone.com',
+   'length': '207755',
+   'type': 'application/xhtml+xml',
+   'collection': '2950',
+   'wayback_link': 'https://wayback.archive-it.org/2950/20120626041535/http://news.moviefone.com/'},
+  {'title': 'FORUMS | OCCUPY Fort Wayne',
+   'link': 'http://occupyfortwayne.org/forums/?mingleforumaction=viewtopic&t=97',
+   'date': '20120508034230',
+   'description': 'Real all about it: "In <b>Seattle</b> Occupy protesters got ousted and got organized " http://occupythe99percent.com/2011/11/in-<b>seattle</b> -occupy-protesters-got-ousted-and-got-organized/ I think there are many of',
+   'score': '44.71262',
+   'site': 'occupyfortwayne.org',
+   'length': '26092',
+   'type': 'application/xhtml+xml',
+   'collection': '2950',
+   'wayback_link': 'https://wayback.archive-it.org/2950/20120508034230/http://occupyfortwayne.org/forums/?mingleforumaction=viewtopic&t=97'},
+  {'title': 'KING 5 TV | Seattle News, Local News, Breaking News, Weather | Register',
+   'link': 'http://www.king5.com/register/?form=int&docReferrer=http://www.king5.com/news/quake/Ship-debris-possibly-from-tsunami-found-near-Ilwaco-159263555.html',
+   'date': '20120710074055',
+   'description': 'KING 5 TV | <b>Seattle</b> News, Local News, Breaking News, Weather | Register Skip Navigation. Jump to Side Bar.',
+   'score': '40.675343',
+   'site': 'www.king5.com',
+   'length': '58845',
+   'type': 'text/html',
+   'collection': '2950',
+   'wayback_link': 'https://wayback.archive-it.org/2950/20120710074055/http://www.king5.com/register/?form=int&docReferrer=http://www.king5.com/news/quake/Ship-debris-possibly-from-tsunami-found-near-Ilwaco-159263555.html'},
+  {'title': 'Archive 2011 | Occupy Oakland',
+   'link': 'http://occupyoakland.org/archive-2011/',
+   'date': '20120403035303',
+   'description': 'Posted by Julinvictus Based on verified police repression at Occupy <b>Seattle</b> , Occupy Houston, Occupy Long Beach and Occupy San Diego, the port blockade in Oakland will continue.',
+   'score': '37.49238',
+   'site': 'occupyoakland.org',
+   'length': '59416',
+   'type': 'text/html',
+   'collection': '2950',
+   'wayback_link': 'https://wayback.archive-it.org/2950/20120403035303/http://occupyoakland.org/archive-2011/'},
+  {'title': 'oAuth client for PHP - Meetup API | Google Groups',
+   'link': 'http://groups.google.com/group/meetup-api/browse_thread/thread/296877b2238e9272/cfg.init',
+   'date': '20120605044425',
+   'description': "Suite B, <b>Seattle</b> , WA http://www.meetup.com/SeattleWordPressMeetup/events/50003692/ Goes from 3pm - 9pm On 4/24/12 12:29 PM, Rahul wrote: - Hide quoted text - - Show quoted text - I've a working set of",
+   'score': '36.71157',
+   'site': 'groups.google.com',
+   'length': '90039',
+   'type': 'text/html',
+   'collection': '2950',
+   'wayback_link': 'https://wayback.archive-it.org/2950/20120605044425/http://groups.google.com/group/meetup-api/browse_thread/thread/296877b2238e9272/cfg.init'},
+  {'title': 'Forum Post: christmas tree tax for the fascists. | OccupyWallSt.org',
+   'link': 'http://www.occupywallst.org/forum/christmas-tree-tax-for-the-fascists/',
+   'date': '20120103162050',
+   'description': 'popular uproar but it does say a lot in and of itself... http://www.cbsnews.com/8301-503544_162-57321664-503544/christmas-tree-tax-sidelined-after-uproar/ ↥like ↧dislike reply permalink [-] D33 (51) from <b>Seattle</b>',
+   'score': '36.131718',
+   'site': 'www.occupywallst.org',
+   'length': '27108',
+   'type': 'text/html',
+   'collection': '2950',
+   'wayback_link': 'https://wayback.archive-it.org/2950/20120103162050/http://www.occupywallst.org/forum/christmas-tree-tax-for-the-fascists/'},
+  {'title': 'Occupy Movement Kaua‘i: Occupy Movement Kauai Poster 11.5.11 11am Lihue',
+   'link': 'http://www.occupykauai.org/2011/10/occupy-movement-kauai-poster-11511-11am.html?showComment0751320190865965',
+   'date': '20120313041758',
+   'description': "We're very involved locally in Occupy <b>Seattle</b> , and we'd like to contribute to Occupy Kauai any way we can while we're there. Who should we get in touch with as we get closer to January?",
+   'score': '35.4967',
+   'site': 'www.occupykauai.org',
+   'length': '92184',
+   'type': 'text/html',
+   'collection': '2950',
+   'wayback_link': 'https://wayback.archive-it.org/2950/20120313041758/http://www.occupykauai.org/2011/10/occupy-movement-kauai-poster-11511-11am.html?showComment0751320190865965'},
+  {'title': 'Welcome Reddit!',
+   'link': 'http://www.occupyflint.org/archives/310?replytocom=184',
+   'date': '20120508040139',
+   'description': 'By Dean – November 8, 2011 Posted in: Flint , Media , News , Occupy Everything , Occupy Flint Tweet 2 Comments Reply Michael J Burton Posted November 10, 2011 at 3:19 AM <b>Seattle</b> would have been a funner',
+   'score': '35.29602',
+   'site': 'www.occupyflint.org',
+   'length': '34141',
+   'type': 'application/xhtml+xml',
+   'collection': '2950',
+   'wayback_link': 'https://wayback.archive-it.org/2950/20120508040139/http://www.occupyflint.org/archives/310?replytocom=184'},
+  {'title': 'The Occupations Report: 11/11 - Occupy Together | Journal',
+   'link': 'http://www.occupytogether.org/blog/2011/11/11/the-occupations-report-1111/?replytocom=30477',
+   'date': '20120529054400',
+   'description': '<b>Seattle</b> Mayor Mike McGinn said managing Occupy <b>Seattle</b> has taken a “big chunk” of a police fund reserved for monitoring events.',
+   'score': '35.168266',
+   'site': 'www.occupytogether.org',
+   'length': '57183',
+   'type': 'application/xhtml+xml',
+   'collection': '2950',
+   'wayback_link': 'https://wayback.archive-it.org/2950/20120529054400/http://www.occupytogether.org/blog/2011/11/11/the-occupations-report-1111/?replytocom=30477'}]}
+"""
+```
+
+Note that for each item, we construct a `wayback_link` key with the URL we had constructed by hand earlier.
+
+Hopefully, at this point, the gears are started to turn as to what kind of things are possible!  With the Partner API + Opensearch API we could:
+
+- search/browse collections
+- identify a collection
+- search full-text within that collection
+- browse results
+- produce a Wayback Machine capture of a result
+
+### CDX API
+
+The next API we'll _briefly_ look at is the CDX Index API.  
+
+As we've touched on in class, CDX indexes are critical for efficiently working with and accessing indvidual URL captures in our WARC files.  They are, ostensibly, fully derivable from the WARC files themselves.
+
+Let's look at a CDX API result in our browser first, for the collection + URL we just looked at, [https://wayback.archive-it.org/2950/timemap/cdx?url=http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1](https://wayback.archive-it.org/2950/timemap/cdx?url=http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1):
+
+```text
+com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1 20120110014738 http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1 text/html 200 BMGVRRSQGCQLYE3M6EW5BSU5DPBD3VPS - - 0 56071472 ARCHIVEIT-2950-WEEKLY-CWRYUP-20120110014658-00004-crawling208.us.archive.org-6680.warc.gz
+com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1 20120117014149 http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1 text/html 200 22TZJ5NVOLWTXMAJ7QSEWGGMQIESNON2 - - 0 89093997 ARCHIVEIT-2950-WEEKLY-TBLTVX-20120117013814-00000-crawling202.us.archive.org-6680.warc.gz
+com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1 20120124014706 http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1 text/html 200 ECL7RJNXF7TDXSFMBQYYYLZQXMDGBF2L - - 0 26456746 ARCHIVEIT-2950-WEEKLY-RHVJXC-20120124014612-00001-crawling204.us.archive.org-6680.warc.gz
+com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1 20120131014741 http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1 text/html 200 N3SITT3V2XKHAYEA7AIDSKEHWDIE2A2C - - 0 68796268 ARCHIVEIT-2950-WEEKLY-NNMCHH-20120131014518-00001-crawling113.us.archive.org-6682.warc.gz
+com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1 20120207014727 http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1 text/html 200 4ZJP4QYK74SBCCXN4QVYUHCUDFLY66XL - - 0 96680451 ARCHIVEIT-2950-WEEKLY-JCTTHL-20120207014450-00001-crawling201.us.archive.org-6680.warc.gz
+com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1 20120207020425 https://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1 text/html 200 6Y6O7QGO75QYHGU2ZQCHLBNFOURVY5BU - - 0 98144254 ARCHIVEIT-2950-WEEKLY-JCTTHL-20120207020121-00007-crawling201.us.archive.org-6680.warc.gz
+com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1 20120214074940 http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1 text/html 200 5NK3WJE47UA5OHQZYWLIXWQ6TDHWECFL - - 0 90086278 ARCHIVEIT-2950-WEEKLY-FSOCCC-20120214074635-00001-crawling109.us.archive.org-6680.warc.gz
+com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1 20120221033006 http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1 text/html 200 3ATJFV5ZSX5ZN27VHFKLHYLVPU2W35GF - - 0 68484430 ARCHIVEIT-2950-WEEKLY-AJERSM-20120221032736-00001-crawling211.us.archive.org-6683.warc.gz
+com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1 20120228050145 http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1 text/html 200 TW5RPWNT7R5Z5WTRRIFYM5T6WM4N3CYW - - 0 94388371 ARCHIVEIT-2950-WEEKLY-VZHAMO-20120228045744-00001-crawling114.us.archive.org-6683.warc.gz
+com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1 20120327033838 http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1 text/html 200 2L7RVG2CBUUGXLU37KRTV5BZZMW2JLO4 - - 0 17916077 ARCHIVEIT-2950-WEEKLY-LDOXDB-20120327033802-00004-crawling207.us.archive.org-6681.warc.gz
+com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1 20120327043922 https://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1 text/html 200 LNJ5OOMG3IXYSF5M6YJFCKGRFWUOERU6 - - 0 11789759 ARCHIVEIT-2950-WEEKLY-LDOXDB-20120327043857-00021-crawling207.us.archive.org-6681.warc.gz
+com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1 20120403035448 http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1 text/html 200 HYYAY2A5G7BPUPKRSPOH33FDB4VVPGJC - - 0 73199570 ARCHIVEIT-2950-WEEKLY-TXYADX-20120403035207-00003-crawling204.us.archive.org-6682.warc.gz
+com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1 20120403045135 https://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1 text/html 200 A2VH5KJNZFQTP3DXO6VRJB2ILIJLBU6G - - 0 38807955 ARCHIVEIT-2950-WEEKLY-TXYADX-20120403044959-00018-crawling204.us.archive.org-6682.warc.gz
+com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1 20120410035945 http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1 text/html 200 6LKU6FE3YF7J556MTNIQNBLEZACNGNCJ - - 0 49579158 ARCHIVEIT-2950-WEEKLY-ZVZYBE-20120410035804-00008-crawling210.us.archive.org-6680.warc.gz
+com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1 20120410044322 https://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1 text/html 200 ETKNEPRIRGJMESESSOPODKXDVTMEN6RM - - 0 54401412 ARCHIVEIT-2950-WEEKLY-ZVZYBE-20120410044136-00020-crawling210.us.archive.org-6680.warc.gz
+com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1 20120417040401 http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1 text/html 200 SOA3CMU2QAEV7F4ISXP7FI36IECF3JRF - - 0 55021342 ARCHIVEIT-2950-WEEKLY-EWUVNG-20120417040140-00009-crawling203.us.archive.org-6680.warc.gz
+```
+
+Pure text, not lovely to look at, but super informative!
+
+This data tells us information like:
+- capture dates
+- HTTP codes
+- length of URL content captured
+- etc.
+
+So while the Opensearch API and/or the Partner API may be able to identify seeds and URLs, it doesn't do much for understanding _how many times_ that URL was captured.  This CDX API fills that need quite well.
+
+Similar to Opensearch, a python class/client has been created that parses this CDX format and produces a python friendly dictionary.  Let's try that out:
+
+```python
+from labs.ait_apis.clients import AITCDXClient
+
+cdx_client = AITCDXClient()
+
+cdx_client.get(collection_id=2950, url="http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1")
+"""
+[{'surt_url': 'com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1',
+  'timestamp': '20120110014738',
+  'original_url': 'http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1',
+  'mime_type': 'text/html',
+  'status_code': '200',
+  'digest': 'BMGVRRSQGCQLYE3M6EW5BSU5DPBD3VPS',
+  'redirect_url': '-',
+  'meta': '-',
+  'compressed_length': '0',
+  'offset': '56071472',
+  'warc_filename': 'ARCHIVEIT-2950-WEEKLY-CWRYUP-20120110014658-00004-crawling208.us.archive.org-6680.warc.gz'},
+ {'surt_url': 'com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1',
+  'timestamp': '20120117014149',
+  'original_url': 'http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1',
+  'mime_type': 'text/html',
+  'status_code': '200',
+  'digest': '22TZJ5NVOLWTXMAJ7QSEWGGMQIESNON2',
+  'redirect_url': '-',
+  'meta': '-',
+  'compressed_length': '0',
+  'offset': '89093997',
+  'warc_filename': 'ARCHIVEIT-2950-WEEKLY-TBLTVX-20120117013814-00000-crawling202.us.archive.org-6680.warc.gz'},
+ {'surt_url': 'com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1',
+  'timestamp': '20120124014706',
+  'original_url': 'http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1',
+  'mime_type': 'text/html',
+  'status_code': '200',
+  'digest': 'ECL7RJNXF7TDXSFMBQYYYLZQXMDGBF2L',
+  'redirect_url': '-',
+  'meta': '-',
+  'compressed_length': '0',
+  'offset': '26456746',
+  'warc_filename': 'ARCHIVEIT-2950-WEEKLY-RHVJXC-20120124014612-00001-crawling204.us.archive.org-6680.warc.gz'},
+ {'surt_url': 'com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1',
+  'timestamp': '20120131014741',
+  'original_url': 'http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1',
+  'mime_type': 'text/html',
+  'status_code': '200',
+  'digest': 'N3SITT3V2XKHAYEA7AIDSKEHWDIE2A2C',
+  'redirect_url': '-',
+  'meta': '-',
+  'compressed_length': '0',
+  'offset': '68796268',
+  'warc_filename': 'ARCHIVEIT-2950-WEEKLY-NNMCHH-20120131014518-00001-crawling113.us.archive.org-6682.warc.gz'},
+ {'surt_url': 'com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1',
+  'timestamp': '20120207014727',
+  'original_url': 'http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1',
+  'mime_type': 'text/html',
+  'status_code': '200',
+  'digest': '4ZJP4QYK74SBCCXN4QVYUHCUDFLY66XL',
+  'redirect_url': '-',
+  'meta': '-',
+  'compressed_length': '0',
+  'offset': '96680451',
+  'warc_filename': 'ARCHIVEIT-2950-WEEKLY-JCTTHL-20120207014450-00001-crawling201.us.archive.org-6680.warc.gz'},
+ {'surt_url': 'com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1',
+  'timestamp': '20120207020425',
+  'original_url': 'https://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1',
+  'mime_type': 'text/html',
+  'status_code': '200',
+  'digest': '6Y6O7QGO75QYHGU2ZQCHLBNFOURVY5BU',
+  'redirect_url': '-',
+  'meta': '-',
+  'compressed_length': '0',
+  'offset': '98144254',
+  'warc_filename': 'ARCHIVEIT-2950-WEEKLY-JCTTHL-20120207020121-00007-crawling201.us.archive.org-6680.warc.gz'},
+ {'surt_url': 'com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1',
+  'timestamp': '20120214074940',
+  'original_url': 'http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1',
+  'mime_type': 'text/html',
+  'status_code': '200',
+  'digest': '5NK3WJE47UA5OHQZYWLIXWQ6TDHWECFL',
+  'redirect_url': '-',
+  'meta': '-',
+  'compressed_length': '0',
+  'offset': '90086278',
+  'warc_filename': 'ARCHIVEIT-2950-WEEKLY-FSOCCC-20120214074635-00001-crawling109.us.archive.org-6680.warc.gz'},
+ {'surt_url': 'com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1',
+  'timestamp': '20120221033006',
+  'original_url': 'http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1',
+  'mime_type': 'text/html',
+  'status_code': '200',
+  'digest': '3ATJFV5ZSX5ZN27VHFKLHYLVPU2W35GF',
+  'redirect_url': '-',
+  'meta': '-',
+  'compressed_length': '0',
+  'offset': '68484430',
+  'warc_filename': 'ARCHIVEIT-2950-WEEKLY-AJERSM-20120221032736-00001-crawling211.us.archive.org-6683.warc.gz'},
+ {'surt_url': 'com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1',
+  'timestamp': '20120228050145',
+  'original_url': 'http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1',
+  'mime_type': 'text/html',
+  'status_code': '200',
+  'digest': 'TW5RPWNT7R5Z5WTRRIFYM5T6WM4N3CYW',
+  'redirect_url': '-',
+  'meta': '-',
+  'compressed_length': '0',
+  'offset': '94388371',
+  'warc_filename': 'ARCHIVEIT-2950-WEEKLY-VZHAMO-20120228045744-00001-crawling114.us.archive.org-6683.warc.gz'},
+ {'surt_url': 'com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1',
+  'timestamp': '20120327033838',
+  'original_url': 'http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1',
+  'mime_type': 'text/html',
+  'status_code': '200',
+  'digest': '2L7RVG2CBUUGXLU37KRTV5BZZMW2JLO4',
+  'redirect_url': '-',
+  'meta': '-',
+  'compressed_length': '0',
+  'offset': '17916077',
+  'warc_filename': 'ARCHIVEIT-2950-WEEKLY-LDOXDB-20120327033802-00004-crawling207.us.archive.org-6681.warc.gz'},
+ {'surt_url': 'com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1',
+  'timestamp': '20120327043922',
+  'original_url': 'https://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1',
+  'mime_type': 'text/html',
+  'status_code': '200',
+  'digest': 'LNJ5OOMG3IXYSF5M6YJFCKGRFWUOERU6',
+  'redirect_url': '-',
+  'meta': '-',
+  'compressed_length': '0',
+  'offset': '11789759',
+  'warc_filename': 'ARCHIVEIT-2950-WEEKLY-LDOXDB-20120327043857-00021-crawling207.us.archive.org-6681.warc.gz'},
+ {'surt_url': 'com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1',
+  'timestamp': '20120403035448',
+  'original_url': 'http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1',
+  'mime_type': 'text/html',
+  'status_code': '200',
+  'digest': 'HYYAY2A5G7BPUPKRSPOH33FDB4VVPGJC',
+  'redirect_url': '-',
+  'meta': '-',
+  'compressed_length': '0',
+  'offset': '73199570',
+  'warc_filename': 'ARCHIVEIT-2950-WEEKLY-TXYADX-20120403035207-00003-crawling204.us.archive.org-6682.warc.gz'},
+ {'surt_url': 'com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1',
+  'timestamp': '20120403045135',
+  'original_url': 'https://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1',
+  'mime_type': 'text/html',
+  'status_code': '200',
+  'digest': 'A2VH5KJNZFQTP3DXO6VRJB2ILIJLBU6G',
+  'redirect_url': '-',
+  'meta': '-',
+  'compressed_length': '0',
+  'offset': '38807955',
+  'warc_filename': 'ARCHIVEIT-2950-WEEKLY-TXYADX-20120403044959-00018-crawling204.us.archive.org-6682.warc.gz'},
+ {'surt_url': 'com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1',
+  'timestamp': '20120410035945',
+  'original_url': 'http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1',
+  'mime_type': 'text/html',
+  'status_code': '200',
+  'digest': '6LKU6FE3YF7J556MTNIQNBLEZACNGNCJ',
+  'redirect_url': '-',
+  'meta': '-',
+  'compressed_length': '0',
+  'offset': '49579158',
+  'warc_filename': 'ARCHIVEIT-2950-WEEKLY-ZVZYBE-20120410035804-00008-crawling210.us.archive.org-6680.warc.gz'},
+ {'surt_url': 'com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1',
+  'timestamp': '20120410044322',
+  'original_url': 'https://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1',
+  'mime_type': 'text/html',
+  'status_code': '200',
+  'digest': 'ETKNEPRIRGJMESESSOPODKXDVTMEN6RM',
+  'redirect_url': '-',
+  'meta': '-',
+  'compressed_length': '0',
+  'offset': '54401412',
+  'warc_filename': 'ARCHIVEIT-2950-WEEKLY-ZVZYBE-20120410044136-00020-crawling210.us.archive.org-6680.warc.gz'},
+ {'surt_url': 'com,wordpress,occupyca)/2011/12/12/west-coast-ports-shutdown?like=1',
+  'timestamp': '20120417040401',
+  'original_url': 'http://occupyca.wordpress.com/2011/12/12/west-coast-ports-shutdown/?like=1',
+  'mime_type': 'text/html',
+  'status_code': '200',
+  'digest': 'SOA3CMU2QAEV7F4ISXP7FI36IECF3JRF',
+  'redirect_url': '-',
+  'meta': '-',
+  'compressed_length': '0',
+  'offset': '55021342',
+  'warc_filename': 'ARCHIVEIT-2950-WEEKLY-EWUVNG-20120417040140-00009-crawling203.us.archive.org-6680.warc.gz'}]
+"""
+```
+
+A couple things to note:
+
+- this CDX API endpoint does NOT require authentication
+- we DO have to provide a collection ID to limit the results to a single collection
+- we DO have to provide a known URL that has been captured
+
+This endpoint -- in theory -- contains trillions (!) of possible responses, so this limiting is essential.
+
+### WASAPI API
+
+The last API we'll look at, briefly, is the Web Archiving Systems API (WASAPI) endpoint.
+
+One of the primary features, and the only one we'll look at today, is the ability to provide URLs to download WARC files.
+
+Unlike the Opensearch and CDX APIs, this one does require authentication.  
+
+First, let's look at the results in our browser via their handy-dandy API HTML results. For this example, we'll go back to our original collection of `30935` which is a collection owned by our AIT account, [https://warcs.archive-it.org/wasapi/v1/webdata?collection=30935](https://warcs.archive-it.org/wasapi/v1/webdata?collection=30935).
+
+```json
+{
+  "filename": "ARCHIVEIT-30935-CRAWL_SELECTED_SEEDS-JOB2656578-SEED4602918-20260122030027217-00000-h3.warc.gz",
+  "filetype": "warc",
+  "checksums": {
+    "sha1": "6d952d7a02580ae33c74d8e06cf84eaf18988af6",
+    "md5": "d2039e8b86748d1c1701d70669dd873c"
+  },
+  "account": 421,
+  "size": 268185,
+  "collection": 30935,
+  "crawl": 2656578,
+  "crawl-time": "2026-01-22T03:00:27.217000Z",
+  "crawl-start": "2026-01-22T03:00:24.081819Z",
+  "store-time": "2026-01-22T03:05:09.170121Z",
+  "locations": [
+    "https://warcs.archive-it.org/webdatafile/ARCHIVEIT-30935-CRAWL_SELECTED_SEEDS-JOB2656578-SEED4602918-20260122030027217-00000-h3.warc.gz",
+    "https://archive.org/download/ARCHIVEIT-30935-2026012203-00000/ARCHIVEIT-30935-CRAWL_SELECTED_SEEDS-JOB2656578-SEED4602918-20260122030027217-00000-h3.warc.gz"
+  ]
+}
+```
+
+Note that the results contain a `locations` property with URLs.  These are download links to the WARC files themselves!
+
+We can also filter the response to only WARC files from a specific crawl.
+
+### Bringing it all together!
+
 
 ## Reflection Prompts
