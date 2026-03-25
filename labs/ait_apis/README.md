@@ -1,4 +1,4 @@
-# Lab: pywb (record + replay)
+# Lab: Archive-It (AIT) APIs
 
 ## Overview
 

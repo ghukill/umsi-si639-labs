@@ -9,3 +9,4 @@
 - [Lab: Heritrix](heritrix)
 - [Lab: warcprox](warcprox)
 - [Lab: bag-nabit](bag_nabit)
+- [Lab: Archive-It (AIT) APIs](ait_apis)
