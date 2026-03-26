@@ -1,7 +1,7 @@
 {% extends "base.html" %}
+{% block breadcrumbs %}<li><a href="/">Collections</a></li><li><a href="/collection/{{ collection.data.id }}">{{ collection.data.name }}</a></li><li>Crawl {{ crawl_id }}</li>{% endblock %}
 {% block content %}
 <h1>Collection <code>{{ collection.data.id }}</code>: "{{ collection.data.name }}"</h1>
-<p><a href="/collection/{{ collection.data.id }}">Back to collection</a></p>
 <h2>Crawl {{ crawl_id }} - Documents</h2>
 <p>{{ documents | length }} documents</p>
 <table>
