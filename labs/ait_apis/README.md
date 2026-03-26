@@ -1276,7 +1276,7 @@ For now, let's try running the app and then breaking down how it works.
 In a terminal, run the following:
 
 ```shell
-AIT_USERNAME=xxx AIT_PASSWORD=yyy uv run collection_app.py
+AIT_USERNAME=xxx AIT_PASSWORD=yyy uv run labs/ait_apis/collection_app.py
 ```
 
 Then navigate to [http://localhost:5000](http://localhost:5000).
