@@ -1285,7 +1285,8 @@ Then navigate to [http://localhost:5000](http://localhost:5000).
 
 From here, click around and have fun!  Here's the gist of how this application works:
 
-1. We use the Partner API to get a list of collections, limited to active collections only
+1. It's a relatively simple Python [flask](https://flask.palletsprojects.com/en/stable/) web application
+2. We use the Partner API to get a list of collections, limited to active collections only
 2. Clicking into a collection, we get a list of crawls from the Partner API
 3. Clicking into a crawl, we get a list of documents for that crawl and construct Wayback links
 
