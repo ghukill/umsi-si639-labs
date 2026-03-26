@@ -8,7 +8,7 @@ app = Flask(__name__)
 @app.route("/")
 def index_route():
     partner_client = AITPartnerClient()
-    collections = partner_client.get("collection")
+    collections = partner_client.get("collection",state="ACTIVE")
     return render_template("index.html", collections=collections)
 
 

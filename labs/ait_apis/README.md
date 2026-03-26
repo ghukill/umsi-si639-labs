@@ -1215,7 +1215,7 @@ We can also filter the response to only WARC files from a specific crawl.
 
 ### Bringing it all together!
 
-There is a Partner API route we have not discussed yet -- to be clear, one of many! -- that provides information about "documents" (URLs) captured during a given crawl.  Let's continue to explore the crawl job `2656578` from collection `30935`.
+There is a Partner API route we have not discussed yet -- to be clear, just one of many -- that provides information about "documents" (URLs) captured during a given crawl.  Let's continue to explore the crawl job `2656578` from collection `30935`.
 
 Let's look at the following API URL in the browser [https://partner.archive-it.org/api/reports/crawled-detail/2656578](https://partner.archive-it.org/api/reports/crawled-detail/2656578).  Here are two arbitrary examples from the response:
 
@@ -1269,27 +1269,29 @@ We can also use properties in the items to filter the response.  Let's look only
 
 Taking what we've learned about the APIs... could we create a super simple browser for a collection and its crawls?  Let's try!
 
-There is another file in the lab directory called [collection_app.py](collection_app.py).  While a _really_ fun lab would be creating this from scratch, this has been built in advance to get a sense of what's possible with the APIs alone.  Please take a look at this file in its entirety! 
+There is another file in the lab directory called [collection_app.py](collection_app.py).  While a _really_ fun lab would be creating this from scratch, this has been built in advance to get a sense of what's possible with the APIs alone.  Please take a look at this file in its entirety at some point. 
 
 For now, let's try running the app and then breaking down how it works.
 
-In a terminal, run the following:
+In a terminal, run the following, again replacing value for `AIT_USERNAME` and `AIT_PASSWORD` as needed,
 
 ```shell
 AIT_USERNAME=xxx AIT_PASSWORD=yyy uv run labs/ait_apis/collection_app.py
 ```
 
+(Or, if you have created a `.env` file, you you can run it with `uv run --env-file .env labs/ait_apis/collection_app.py`)
+
 Then navigate to [http://localhost:5000](http://localhost:5000).
 
 From here, click around and have fun!  Here's the gist of how this application works:
 
-1. We use the Partner API to get a list of collections
+1. We use the Partner API to get a list of collections, limited to active collections only
 2. Clicking into a collection, we get a list of crawls from the Partner API
 3. Clicking into a crawl, we get a list of documents for that crawl and construct Wayback links
 
 Some improvements we could readily do:
 - add full-text search with our Opensearch client
-- search for a specific URL and see different captures (versus jumping in for a specific crawl)
+- search for a specific URL and see different captures (versus jumping in for a specific crawl); this is more like ReplayWeb
 - using the CDX API, show different captures of the same URL, which would jump you out into other crawls
 - using the WASAPI, download WARC files for a given crawl and/or captured URL
 
@@ -1300,3 +1302,9 @@ And that's just the tip of the iceberg! 🧊  Given the APIs we've covered -- wh
 
 
 ## Reflection Prompts
+
+1- Why do you think Archive-It has separated these APIs?  Was it a design decision?  or one influenced by pre-existing systems and APIs?  
+
+2- Knowing what you know about the APIs now, what value adds do you think the Archive-It partner interface provides?  what functionality exists beyond what these APIs could support?
+
+3- Real blue sky thinking here, what kind of discovery and access interfaces do you think could be built for web archives with APIs like these?
