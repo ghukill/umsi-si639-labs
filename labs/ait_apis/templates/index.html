@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Collections</h1>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>State</th>
+        <th>Active Seeds</th>
+        <th>Created By</th>
+        <th>Created Date</th>
+        <th>Last Updated</th>
+    </tr>
+    {% for col in collections %}
+    <tr>
+        <td><a href="/collection/{{ col.id }}">{{ col.id }}</a></td>
+        <td>{{ col.name }}</td>
+        <td>{{ col.state }}</td>
+        <td>{{ col.num_active_seeds }}</td>
+        <td>{{ col.created_by }}</td>
+        <td>{{ col.created_date }}</td>
+        <td>{{ col.last_updated_date }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

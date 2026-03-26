@@ -10,6 +10,7 @@ The class/client `AITCollection` is a good entrypoint.  Opinionated to work with
 single AIT collection, the 4 APIs covered in this file and lab are composed onto this
 class.
 """
+
 from functools import lru_cache
 import os
 import xml.etree.ElementTree as ET
@@ -32,8 +33,8 @@ class AITPartnerClient:
             self.session.auth = (username, password)
 
     @lru_cache()
-    def get(self, prefix, **kwargs):
-        url = f"{self.PARTNER_API_BASE_URL}/{prefix}?limit=-1"
+    def get(self, prefix, no_limit=True, **kwargs):
+        url = f"{self.PARTNER_API_BASE_URL}/{prefix}?{'limit=-1' if no_limit else ''}"
         for key, value in kwargs.items():
             url += f"&{key}={value}"
         response = self.session.get(url)
@@ -154,6 +155,11 @@ class AITCollection:
         self.data = self._load_collection()
 
     def _load_collection(self) -> dict:
+        collections = self.partner_client.get("collection", id=self.collection_id)
+        if not collections:
+            raise ValueError(
+                f"Collection id not found: {self.collection_id}.  Do you need to authenticate?"
+            )
         data = self.partner_client.get("collection", id=self.collection_id)[0]
         print(f"Loaded collection: {data['name']}, state: {data['state']}")
         return data

@@ -1215,5 +1215,71 @@ We can also filter the response to only WARC files from a specific crawl.
 
 ### Bringing it all together!
 
+There is a Partner API route we have not discussed yet -- to be clear, one of many! -- that provides information about "documents" (URLs) captured during a given crawl.  Let's continue to explore the crawl job `2656578` from collection `30935`.
+
+Let's look at the following API URL in the browser [https://partner.archive-it.org/api/reports/crawled-detail/2656578](https://partner.archive-it.org/api/reports/crawled-detail/2656578).  Here are two arbitrary examples from the response:
+
+```json
+{
+    "id": 45,
+    "timestamp": "2026-01-22 03:01:04.927000",
+    "status_code": 200,
+    "size": 2938,
+    "payload_size": 2740,
+    "url": "https://minternet-blogs.exe.xyz/author/alice",
+    "hop_path": "LL",
+    "is_seed_redirect": 0,
+    "via": "https://minternet-blogs.exe.xyz/",
+    "mimetype": "text/html",
+    "content_digest": "sha1:QH3IOM6XWXINOTGRTXTPV2RQ57IVOS46",
+    "seed": "https://minternet.exe.xyz/",
+    "is_duplicate": 0,
+    "warc_filename": "ARCHIVEIT-30935-CRAWL_SELECTED_SEEDS-JOB2656578-SEED4602918-20260122030027217-00000-h3.warc.gz",
+    "warc_offset": "ARCHIVEIT-30935-CRAWL_SELECTED_SEEDS-JOB2656578-SEED4602918-20260122030027217-00000-h3.warc.gz",
+    "warc_content_bytes": 2938,
+    "host": "minternet-blogs.exe.xyz"
+},
+{
+    "id": 46,
+    "timestamp": "2026-01-22 03:01:06.610000",
+    "status_code": 200,
+    "size": 1759,
+    "payload_size": 1400,
+    "url": "https://minternet-science.exe.xyz/static/images/pendulum.svg",
+    "hop_path": "LE",
+    "is_seed_redirect": 0,
+    "via": "https://minternet-science.exe.xyz/",
+    "mimetype": "image/svg+xml",
+    "content_digest": "sha1:2NI4VEXNGVP4D4UUUTAQXU5VN77O4QUV",
+    "seed": "https://minternet.exe.xyz/",
+    "is_duplicate": 0,
+    "warc_filename": "ARCHIVEIT-30935-CRAWL_SELECTED_SEEDS-JOB2656578-SEED4602918-20260122030027217-00000-h3.warc.gz",
+    "warc_offset": "ARCHIVEIT-30935-CRAWL_SELECTED_SEEDS-JOB2656578-SEED4602918-20260122030027217-00000-h3.warc.gz",
+    "warc_content_bytes": 1759,
+    "host": "minternet-science.exe.xyz"
+},
+```
+
+A few notes:
+- `url`: the actual URL of the capture
+- `via`: the URL that resulted in this URL getting captured
+- `status_code`: HTTP status code, where codes like `200` indicate a successful capture
+
+We can also use properties in the items to filter the response.  Let's look only for `200` responses and the `text/html` mimetype, indicating a website: [https://partner.archive-it.org/api/reports/crawled-detail/2656578?status_code=200&mimetype=text/html](https://partner.archive-it.org/api/reports/crawled-detail/2656578?status_code=200&mimetype=text/html).  This filters the response down to ~34 items that resolve to "real" websites.
+
+Taking what we've learned about the APIs... could we create a super simple browser for a collection and its crawls?  Let's try!
+
+There is another file in the lab directory called [collection_app.py](collection_app.py).  While a _really_ fun lab would be creating this from scratch, this has been built in advance to get a sense of what's possible with the APIs alone.  Please take a look at this file in its entirety! 
+
+For now, let's try running the app and then breaking down how it works.
+
+In a terminal, run the following:
+
+```shell
+AIT_USERNAME=xxx AIT_PASSWORD=yyy uv run collection_app.py
+```
+
+Then navigate to [http://localhost:5000](http://localhost:5000).
+
 
 ## Reflection Prompts

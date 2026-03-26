@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Collection <code>{{ collection.data.id }}</code>: "{{ collection.data.name }}"</h1>
+<p><a href="/collection/{{ collection.data.id }}">Back to collection</a></p>
+<h2>Crawl {{ crawl_id }} - Documents</h2>
+<p>{{ documents | length }} documents</p>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>URL</th>
+        <th>Wayback</th>
+        <th>Status</th>
+        <th>MIME Type</th>
+        <th>Size</th>
+        <th>Payload Size</th>
+        <th>Duplicate</th>
+        <th>Seed</th>
+        <th>Timestamp</th>
+    </tr>
+    {% for doc in documents %}
+    <tr>
+        <td>{{ doc.id }}</td>
+        <td><a href="{{ doc.url }}">{{ doc.url }}</a></td>
+        <td><a href="{{ doc.wayback_url }}">{{ doc.wayback_url }}</a></td>
+        <td>{{ doc.status_code }}</td>
+        <td>{{ doc.mimetype }}</td>
+        <td>{{ doc.size }}</td>
+        <td>{{ doc.payload_size }}</td>
+        <td>{{ doc.is_duplicate }}</td>
+        <td>{{ doc.seed }}</td>
+        <td>{{ doc.timestamp }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Collection <code>{{ collection.data.id }}</code>: "{{ collection.data.name }}"</h1>
+<p><a href="/">Back to collections</a></p>
+<h2>Crawls</h2>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Status</th>
+        <th>Type</th>
+        <th>Pages</th>
+        <th>Data (KB)</th>
+        <th>Novel</th>
+        <th>Duplicate</th>
+        <th>Start</th>
+        <th>End</th>
+    </tr>
+    {% for crawl in crawls %}
+    <tr>
+        <td><a href="/collection/{{ collection.data.id }}/crawl/{{ crawl.id }}">{{ crawl.id }}</a></td>
+        <td>{{ crawl.status }}</td>
+        <td>{{ crawl.type }}</td>
+        <td>{{ crawl.downloaded_count }}</td>
+        <td>{{ crawl.total_data_in_kbs }}</td>
+        <td>{{ crawl.novel_count }}</td>
+        <td>{{ crawl.duplicate_count }}</td>
+        <td>{{ crawl.original_start_date }}</td>
+        <td>{{ crawl.end_date }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
