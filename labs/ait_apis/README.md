@@ -593,7 +593,7 @@ Let's first perform a request in the browser to get a quick feel for the respons
 Gasp, XML!  
 
 Let's break down the URL pattern a bit:
-- API base URL: `https://archive-it.org/search-master/opensearch?i=30935&q=alice](https://archive-it.org/search-master/opensearch`
+- API base URL: `https://archive-it.org/search-master/opensearch`
 - collection id: `?i=30935`
 - search term "alice": `q=alice`
 
@@ -936,7 +936,7 @@ opensearch_client.search(collection_id=2950, query="Seattle")
 
 Note that for each item, we construct a `wayback_link` key with the URL we had constructed by hand earlier.
 
-Hopefully, at this point, the gears are started to turn as to what kind of things are possible!  With the Partner API + Opensearch API we could:
+Hopefully, at this point, the gears are starting to turn as to what kind of things are possible!  With the Partner API + Opensearch API we could:
 
 - search/browse collections
 - identify a collection
@@ -1280,6 +1280,23 @@ AIT_USERNAME=xxx AIT_PASSWORD=yyy uv run collection_app.py
 ```
 
 Then navigate to [http://localhost:5000](http://localhost:5000).
+
+From here, click around and have fun!  Here's the gist of how this application works:
+
+1. We use the Partner API to get a list of collections
+2. Clicking into a collection, we get a list of crawls from the Partner API
+3. Clicking into a crawl, we get a list of documents for that crawl and construct Wayback links
+
+Some improvements we could readily do:
+- add full-text search with our Opensearch client
+- search for a specific URL and see different captures (versus jumping in for a specific crawl)
+- using the CDX API, show different captures of the same URL, which would jump you out into other crawls
+- using the WASAPI, download WARC files for a given crawl and/or captured URL
+
+Some more difficult but really neat improvements:
+- use a tool to generate screenshot thumbnails of the Wayback renderings when loading captures for a URL
+
+And that's just the tip of the iceberg! 🧊  Given the APIs we've covered -- which we are just barely using in this application -- we could add considerable functionality.  With a bit more effort and engineering, we could build some really next generation access systems.  More on that next week... 
 
 
 ## Reflection Prompts
