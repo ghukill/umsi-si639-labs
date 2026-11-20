@@ -1,6 +1,9 @@
 services:
   jekyll:
-    image: jekyll/builder:latest
+    # Pinned: `latest` was republished (2026) as a Debian image without the
+    # `jekyll` user; Gemfile.lock targets this Alpine x86_64 image.
+    image: jekyll/builder:4.2.2
+    platform: linux/amd64
     working_dir: /srv/jekyll
     user: root
     environment:
