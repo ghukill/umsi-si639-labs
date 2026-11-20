@@ -11,14 +11,16 @@ Check that `uv` is installed correctly:
 uv --version
 
 # should see something like
-# uv 0.9.18 (0cee76417 2025-12-16)
+# uv 0.13.9 (<info specific to your machine>)
 ```
 
 2- Clone this repository: https://github.com/ghukill/umsi-si639-labs
 
+_NOTE: if using a Github codespace, already cloned and in the right directory!_
+
 3- Create python virtual environment:
 ```shell
-uv venv .venv --python 3.12
+uv venv .venv --python 3.13
 ```
 
 4- Install dependencies:

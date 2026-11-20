@@ -108,7 +108,7 @@ test-bag-1 \
 
 NOTE: You may see a warning like the following: 
 ```text
-..../.venv/lib/python3.12/site-packages/nabit/lib/sign.py:7: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+..../.venv/lib/python3.13/site-packages/nabit/lib/sign.py:7: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
   import pkg_resources
 ```
 

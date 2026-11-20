@@ -54,7 +54,7 @@ git pull origin main
 
 Create a python virtual environment with `uv`:
 ```shell
-uv venv .venv --python 3.12
+uv venv .venv --python 3.13
 ```
 
 Install all dependencies:
@@ -72,19 +72,19 @@ _Note: for the following commands, you may see some warning outputs... that's ok
 Confirm that `pywb` is installed:
 ```shell
 pywb --version
-# pywb 2.9.1   <-------- looking for this in output
+# pywb 2.11.1   <-------- looking for similar in output
 ```
 
 Confirm that `wb-manager` can be run:
 ```shell
 wb-manager --version
-# wb-manager 2.9.1   <-------- looking for this in output
+# wb-manager 2.11.1   <-------- looking for similar in output
 ```
 
 Confirm that `wacz` can be run:
 ```shell
 wacz --version
-# wacz 0.5.0 -- WACZ File Format: 1.1.1   <-------- looking for this in output
+# wacz 0.6.0 -- WACZ File Format: 1.1.1   <-------- looking for similar in output
 ```
 
 If those three commands run successfully, you should be good to go!

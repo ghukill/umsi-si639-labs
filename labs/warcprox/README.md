@@ -60,13 +60,13 @@ uv sync
 Ensure warcprox is installed:
 ```shell
 uv run warcprox --version
-# output like: warcprox 2.12.0
+# output like: warcprox 2.13.1
 ```
 
 Ensure playwright is installed:
 ```shell
 uv run playwright --version
-# output like: Version 1.58.0
+# output like: Version 1.65.2
 ```
 
 Use playwright to install an instance of the [Chromium browser engine](https://www.chromium.org/Home/) local to this project
